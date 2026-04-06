@@ -1,48 +1,40 @@
-# Git Push Instructions
+# Git push (GitHub)
 
-## Push to GitHub
+**Remote:** `https://github.com/itconsultantbryant-svg/pgc_hr_system.git`
 
-Your repository has been initialized and committed. To push to GitHub:
+## Settings that reduce HTTP 400 / pack errors
 
-### Option 1: Using Personal Access Token (Recommended)
-
-1. **Push using the token when prompted:**
-   ```bash
-   git push -u origin main
-   ```
-   
-   When prompted for credentials:
-   - **Username**: `itconsultantbryant`
-   - **Password**: `[Your Personal Access Token]`
-
-### Option 2: Using Token in URL (Temporary)
-
-If you want to push without prompts:
+Applied globally (safe to keep):
 
 ```bash
-git remote set-url origin https://itconsultantbryant:[YOUR_TOKEN]@github.com/itconsultantbryant/prinstine_job_platform.git
+git config --global http.postBuffer 524288000
+git config --global http.version HTTP/1.1
+```
+
+## Push
+
+```bash
 git push -u origin main
 ```
 
-**⚠️ Security Note**: After pushing, change the remote URL back to remove the token:
+- **HTTPS:** username = your GitHub username (`itconsultantbryant-svg`), password = **Personal Access Token** (not your GitHub password). Scope: **`repo`** (classic) or fine-grained repo **Contents: Read and write**.
+
+## SSH (optional)
+
 ```bash
-git remote set-url origin https://github.com/itconsultantbryant/prinstine_job_platform.git
+git remote set-url origin git@github.com:itconsultantbryant-svg/pgc_hr_system.git
+ssh-add ~/.ssh/id_ed25519   # if needed
+git push -u origin main
 ```
 
-### Option 3: Use SSH (Most Secure)
+Add your **public** SSH key to GitHub → **Settings → SSH and GPG keys** for this account.
 
-1. Set up SSH keys on GitHub
-2. Change remote to SSH:
-   ```bash
-   git remote set-url origin git@github.com:itconsultantbryant/prinstine_job_platform.git
-   git push -u origin main
-   ```
+## Why 403 happened before
 
-## Verify Push
+- **`origin`** pointed at **`samsonbryant/...`** while your machine logged in as **`itconsultantbryant-svg`** (or another user) → permission denied.
+- Fix: **`origin`** must be a repo **your account can write to** (e.g. **`itconsultantbryant-svg/pgc_hr_system`**).
 
-After pushing, verify at:
-https://github.com/itconsultantbryant/prinstine_job_platform
+## Security
 
----
-
-**Status**: Repository initialized and ready to push!
+- Do not commit **PATs** or embed tokens in the remote URL long term.
+- Revoke any token that was pasted into chat or committed.
