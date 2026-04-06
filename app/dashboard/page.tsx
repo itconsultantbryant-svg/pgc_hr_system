@@ -118,6 +118,12 @@ export default function DashboardPage() {
   }, [status, router])
 
   useEffect(() => {
+    if (status === 'authenticated' && session?.user?.userType === 'ADMIN') {
+      router.replace('/dashboard/admin')
+    }
+  }, [status, session, router])
+
+  useEffect(() => {
     if (status !== 'authenticated' || !session) return
     if (session.user.userType === 'JOB_SEEKER') loadSeeker()
     if (session.user.userType === 'COMPANY') loadCompany()
