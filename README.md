@@ -139,7 +139,7 @@ The platform uses Prisma with PostgreSQL. Key models include:
 - `npm run db:generate` - Generate Prisma Client
 - `npm run db:push` - Push schema to database
 - `npm run db:migrate` - Create/apply migrations in development (`prisma migrate dev`)
-- `npm run render:migrate` - Apply migrations in production (`prisma migrate deploy`; used on Render pre-deploy)
+- `npm run render:migrate` - Apply migrations in production (`prisma migrate deploy`; on Render free tier, migrations also run in the **build** command — see `render.yaml`)
 - `npm run db:studio` - Open Prisma Studio
 
 ### Creating an Admin User
@@ -170,7 +170,7 @@ Admin users can be created manually in the database by setting `userType` to `AD
 4. Build and deploy the Next.js application
 
 Recommended hosting platforms:
-- **Render** – See [RENDER.md](./RENDER.md) and [render.yaml](./render.yaml). The Blueprint runs `prisma migrate deploy` before each deploy; create an admin once with `npm run create-admin:prod` in the web service Shell (set `NEXTAUTH_URL` to your `https://…onrender.com` URL).
+- **Render** – See [RENDER.md](./RENDER.md) and [render.yaml](./render.yaml). On the **free** web tier, migrations run during **build** (no pre-deploy hook). Create an admin once with `npm run create-admin:prod` in the web service Shell (set `NEXTAUTH_URL` to your `https://…onrender.com` URL).
 - **Fly.io** – See [FLY_SETUP.md](./FLY_SETUP.md). Set `DATABASE_URL`, `NEXTAUTH_URL`, and `NEXTAUTH_SECRET` as Fly secrets **before** deploying, or the release command will fail.
 - Vercel (recommended for Next.js)
 - Railway

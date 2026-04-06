@@ -1,8 +1,8 @@
 # Render Blueprint — https://render.com/docs/infrastructure-as-code
 # Deploy: Dashboard → New → Blueprint → connect this repo → review → Deploy Blueprint
 #
-# Schema: preDeployCommand runs `prisma migrate deploy` on each deploy.
-# `prisma` is a runtime dependency so migrate works when NODE_ENV=production skips devDependencies.
+# Schema: Free web tier has no pre-deploy hook — migrations run in `buildCommand` after `npm install`.
+# `prisma` is a runtime dependency so the CLI is always installed.
 # After first successful deploy, open the web service Shell once and run:
 #   npm run create-admin:prod
 # Set NEXTAUTH_URL in the dashboard to https://<service>.onrender.com (no trailing slash).
@@ -19,8 +19,7 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm install && npm run build
-    preDeployCommand: npx prisma migrate deploy
+    buildCommand: npm install && npx prisma migrate deploy && npm run build
     startCommand: npm start
     healthCheckPath: /
     autoDeployTrigger: commit

@@ -9,7 +9,7 @@ This app is a **Next.js 14** service with **PostgreSQL** (Prisma). Use the **Int
 3. Connect the repository and select the branch (e.g. `main`).
 4. Review resources (Postgres + web service) and **Deploy Blueprint**.
 5. When prompted for **`NEXTAUTH_URL`** (sync: false), set it to `https://<your-web-service-name>.onrender.com` (**no trailing slash**). You can also add it later under **Environment**.
-6. **Database schema:** each deploy runs **`preDeployCommand: npx prisma migrate deploy`**. If that step fails, open **Shell** and run `npm run render:migrate`, fix any errors, then trigger **Manual Deploy**.
+6. **Database schema:** on the **free** web tier, Render does **not** allow `preDeployCommand`. The blueprint runs **`npx prisma migrate deploy`** inside **`buildCommand`** (after `npm install`, before `npm run build`). If the build fails on migrate, open **Shell**, run `npm run render:migrate`, fix errors, then **Manual Deploy**.
 7. **Admin user (once):** in the web service **Shell**:
 
    ```bash
@@ -26,7 +26,7 @@ The blueprint wires **`DATABASE_URL`** from the Render Postgres instance. **`NEX
 
 1. **New** → **PostgreSQL** — create a database; copy **Internal Database URL**.
 2. **New** → **Web Service** — connect the repo.
-   - **Build command:** `npm install && npm run build`
+   - **Build command:** `npm install && npx prisma migrate deploy && npm run build` (on **free** web services, use this — pre-deploy is not available)
    - **Start command:** `npm start`
    - **Plan:** Free or paid (free tier spins down after idle).
 3. **Environment variables** (web service):
@@ -39,7 +39,7 @@ The blueprint wires **`DATABASE_URL`** from the Render Postgres instance. **`NEX
    | `NEXTAUTH_TRUST_HOST` | `true` |
    | `NODE_ENV` | `production` |
 
-4. Deploy. If you did not set a pre-deploy command, run **`npx prisma migrate deploy`** from **Shell** after the first successful build. Then run **`npm run create-admin:prod`** once.
+4. Deploy. If migrate is not in the build command, run **`npx prisma migrate deploy`** from **Shell** after the first successful build. Then run **`npm run create-admin:prod`** once.
 
 ## Local env template
 
@@ -47,7 +47,7 @@ Copy `.env.example` to `.env` and fill values. Do not commit `.env`.
 
 ## Prisma migrations
 
-- **Production / Render:** `prisma/migrations` is versioned; **`preDeployCommand`** runs **`npx prisma migrate deploy`** on every deploy.
+- **Production / Render (this blueprint, free web):** migrations run in **`buildCommand`** (`npm install && npx prisma migrate deploy && npm run build`). Paid plans can use **`preDeployCommand`** instead if you prefer migrate after build.
 - **Local development:** after pulling, run **`npx prisma migrate dev`** to apply pending migrations (creates/updates your local DB).
 - **Database already created with `db push` (no `_prisma_migrations` history):** if tables already match this schema, baseline once so deploys do not re-apply the init migration:
 
