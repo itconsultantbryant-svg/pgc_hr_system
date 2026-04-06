@@ -5,7 +5,8 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Layout from '@/components/layout/Layout'
-import { Mail, Lock } from 'lucide-react'
+import { PasswordField } from '@/components/auth/PasswordField'
+import { Mail } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 
@@ -90,23 +91,16 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="password" className="form-label flex items-center">
-                  <Lock className="h-4 w-4 mr-2" />
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="form-input"
-                  placeholder="Enter your password"
-                />
-              </div>
+              <PasswordField
+                id="password"
+                name="password"
+                label="Password"
+                value={formData.password}
+                onChange={(password) => setFormData({ ...formData, password })}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                showIconOnLabel
+              />
 
               <button
                 type="submit"

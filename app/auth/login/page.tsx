@@ -5,7 +5,8 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Layout from '@/components/layout/Layout'
-import { Building2, Mail, Lock } from 'lucide-react'
+import { PasswordField } from '@/components/auth/PasswordField'
+import { Mail } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 
@@ -89,31 +90,22 @@ export default function LoginPage() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="pl-10"
+                    className="form-input pl-10"
                     placeholder="your.email@example.com"
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="password" className="form-label">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="pl-10"
-                    placeholder="Enter your password"
-                  />
-                </div>
-              </div>
+              <PasswordField
+                id="password"
+                name="password"
+                label="Password"
+                value={formData.password}
+                onChange={(password) => setFormData({ ...formData, password })}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                inputClassName="form-input w-full pl-10 pr-12"
+              />
 
               <button
                 type="submit"

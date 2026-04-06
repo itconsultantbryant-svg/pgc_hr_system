@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Layout from '@/components/layout/Layout'
-import { User, Briefcase, Building2, Mail, Lock, LockKeyhole } from 'lucide-react'
+import { PasswordField } from '@/components/auth/PasswordField'
+import { User, Briefcase, Building2, Mail } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 
@@ -146,41 +147,28 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="password" className="form-label flex items-center">
-                    <Lock className="h-4 w-4 mr-2" />
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="form-input"
-                    placeholder="At least 6 characters"
-                  />
-                </div>
+                <PasswordField
+                  id="password"
+                  name="password"
+                  label="Password"
+                  value={formData.password}
+                  onChange={(password) => setFormData({ ...formData, password })}
+                  autoComplete="new-password"
+                  placeholder="At least 6 characters"
+                  showIconOnLabel
+                />
 
-                <div className="form-group">
-                  <label htmlFor="confirmPassword" className="form-label flex items-center">
-                    <LockKeyhole className="h-4 w-4 mr-2" />
-                    Confirm Password
-                  </label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    className="form-input"
-                    placeholder="Re-enter your password"
-                  />
-                </div>
+                <PasswordField
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  label="Confirm password"
+                  value={formData.confirmPassword}
+                  onChange={(confirmPassword) => setFormData({ ...formData, confirmPassword })}
+                  autoComplete="new-password"
+                  placeholder="Re-enter your password"
+                  showIconOnLabel
+                  iconMode="keyhole"
+                />
               </div>
 
               <button

@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Layout from '@/components/layout/Layout'
-import { Building2, User, Briefcase, Mail, Lock } from 'lucide-react'
+import { PasswordField } from '@/components/auth/PasswordField'
+import { Building2, User, Briefcase, Mail } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 
@@ -101,10 +102,10 @@ export default function RegisterPage() {
                   className="h-16 w-auto object-contain"
                 />
               </motion.div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 Create Your Account
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 Join our platform and start your journey today
               </p>
             </div>
@@ -158,51 +159,34 @@ export default function RegisterPage() {
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="pl-10"
+                      className="form-input pl-10"
                       placeholder="your.email@example.com"
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="password" className="form-label">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete="new-password"
-                      required
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="pl-10"
-                      placeholder="Minimum 6 characters"
-                    />
-                  </div>
-                </div>
+                <PasswordField
+                  id="password"
+                  name="password"
+                  label="Password"
+                  value={formData.password}
+                  onChange={(password) => setFormData({ ...formData, password })}
+                  autoComplete="new-password"
+                  placeholder="Minimum 6 characters"
+                  inputClassName="form-input w-full pl-10 pr-12"
+                />
 
-                <div className="form-group">
-                  <label htmlFor="confirmPassword" className="form-label">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
-                      autoComplete="new-password"
-                      required
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                      className="pl-10"
-                      placeholder="Confirm your password"
-                    />
-                  </div>
-                </div>
+                <PasswordField
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  label="Confirm password"
+                  value={formData.confirmPassword}
+                  onChange={(confirmPassword) => setFormData({ ...formData, confirmPassword })}
+                  autoComplete="new-password"
+                  placeholder="Confirm your password"
+                  iconMode="keyhole"
+                  inputClassName="form-input w-full pl-10 pr-12"
+                />
               </div>
 
               <button
@@ -219,6 +203,16 @@ export default function RegisterPage() {
                   <span>Create account</span>
                 )}
               </button>
+
+              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+                Already have an account?{' '}
+                <Link
+                  href="/auth/login"
+                  className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 transition-colors"
+                >
+                  Sign in
+                </Link>
+              </p>
             </form>
           </div>
         </motion.div>
