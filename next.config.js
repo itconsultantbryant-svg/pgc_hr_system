@@ -1,0 +1,28 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  async redirects() {
+    return [
+      { source: '/favicon.ico', destination: '/logo.png', permanent: true },
+    ]
+  },
+  images: {
+    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
+  },
+  // Ensure Prisma Client is available
+  webpack: (config) => {
+    config.externals.push('@prisma/client');
+    return config;
+  },
+}
+
+module.exports = nextConfig
