@@ -2,13 +2,16 @@
 # Deploy: Dashboard → New → Blueprint → connect this repo → review → Deploy Blueprint
 #
 # Schema: preDeployCommand runs `prisma migrate deploy` on each deploy.
+# `prisma` is a runtime dependency so migrate works when NODE_ENV=production skips devDependencies.
 # After first successful deploy, open the web service Shell once and run:
 #   npm run create-admin:prod
+# Set NEXTAUTH_URL in the dashboard to https://<service>.onrender.com (no trailing slash).
 # Optional env: ADMIN_EMAIL, ADMIN_PASSWORD (see .env.example).
 
 databases:
   - name: pgc-jobs-platform-db
     plan: free
+    region: oregon
 
 services:
   - type: web
@@ -35,4 +38,6 @@ services:
       - key: NEXTAUTH_URL
         sync: false
       - key: NEXTAUTH_TRUST_HOST
+        value: "true"
+      - key: AUTH_TRUST_HOST
         value: "true"
