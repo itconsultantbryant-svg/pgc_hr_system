@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Production installs (e.g. Render) omit devDependencies; ESLint lives in devDeps.
+  eslint: { ignoreDuringBuilds: true },
   async redirects() {
     return [
       { source: '/favicon.ico', destination: '/logo.png', permanent: true },
