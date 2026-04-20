@@ -59,6 +59,12 @@ interface Profile {
   }
 }
 
+const PLATFORM_CONTACT = {
+  email: 'info@prinstinegroup.org',
+  phone: '+231774917393',
+  whatsapp: '+231774917393',
+}
+
 export default function ProfileDetailPage() {
   const params = useParams()
   const profileId = params.id as string
@@ -130,13 +136,7 @@ export default function ProfileDetailPage() {
     )
   }
 
-  const isDirectPackage = !!(
-    profile.jobSeeker?.hasDirectPackage ??
-    profile.jobSeeker?.user?.email ??
-    (profile.jobSeeker?.user as any)?.subscriptions?.some?.(
-      (sub: any) => sub.type === 'DIRECT' && sub.status === 'ACTIVE'
-    )
-  )
+  const isDirectPackage = !!profile.jobSeeker?.hasDirectPackage
 
   return (
     <Layout>
@@ -207,7 +207,7 @@ export default function ProfileDetailPage() {
                 {isDirectPackage && (profile.jobSeeker.user?.email || profile.jobSeeker.phone || profile.jobSeeker.whatsappNumber) && (
                   <div>
                     <h2 className="text-2xl font-semibold mb-4">Contact</h2>
-                    <div className="flex flex-wrap gap-4">
+                    <div className="space-y-3">
                       {profile.jobSeeker.whatsappNumber && (
                         <a
                           href={`https://wa.me/${profile.jobSeeker.whatsappNumber.replace(/\D/g, '')}`}
@@ -216,7 +216,7 @@ export default function ProfileDetailPage() {
                           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
                         >
                           <MessageCircle className="h-5 w-5" />
-                          WhatsApp
+                          WhatsApp: {profile.jobSeeker.whatsappNumber}
                         </a>
                       )}
                       {profile.jobSeeker.phone && (
@@ -225,7 +225,7 @@ export default function ProfileDetailPage() {
                           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors"
                         >
                           <Phone className="h-5 w-5" />
-                          Call
+                          Call: {profile.jobSeeker.phone}
                         </a>
                       )}
                       {profile.jobSeeker.user?.email && (
@@ -234,7 +234,7 @@ export default function ProfileDetailPage() {
                           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-800 transition-colors"
                         >
                           <Mail className="h-5 w-5" />
-                          Email
+                          Email: {profile.jobSeeker.user.email}
                         </a>
                       )}
                     </div>
@@ -317,13 +317,37 @@ export default function ProfileDetailPage() {
                   </div>
                 )}
 
-                {/* Indirect package message */}
+                {/* Indirect package contact route */}
                 {!isDirectPackage && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-3">
                     <p className="text-yellow-800">
-                      This profile uses an Indirect subscription. To contact this professional,
-                      please contact Prinstine Group of Companies.
+                      This profile uses an Indirect subscription. To hire this professional, contact Prinstine Group of Companies first.
                     </p>
+                    <div className="flex flex-wrap gap-3">
+                      <a
+                        href={`https://wa.me/${PLATFORM_CONTACT.whatsapp.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
+                      >
+                        <MessageCircle className="h-5 w-5" />
+                        WhatsApp: {PLATFORM_CONTACT.whatsapp}
+                      </a>
+                      <a
+                        href={`tel:${PLATFORM_CONTACT.phone}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+                      >
+                        <Phone className="h-5 w-5" />
+                        Call: {PLATFORM_CONTACT.phone}
+                      </a>
+                      <a
+                        href={`mailto:${PLATFORM_CONTACT.email}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-800 transition-colors"
+                      >
+                        <Mail className="h-5 w-5" />
+                        Email: {PLATFORM_CONTACT.email}
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>
@@ -493,11 +517,35 @@ export default function ProfileDetailPage() {
                     )}
 
                     {!companyDirect && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-3">
                         <p className="text-yellow-800">
-                          This company uses an Indirect package. To view full profile and contact details,
-                          please contact Prinstine Group of Companies.
+                          This company uses an Indirect package. To hire this company, contact Prinstine Group of Companies first.
                         </p>
+                        <div className="flex flex-wrap gap-3">
+                          <a
+                            href={`https://wa.me/${PLATFORM_CONTACT.whatsapp.replace(/\D/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
+                          >
+                            <MessageCircle className="h-5 w-5" />
+                            WhatsApp: {PLATFORM_CONTACT.whatsapp}
+                          </a>
+                          <a
+                            href={`tel:${PLATFORM_CONTACT.phone}`}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+                          >
+                            <Phone className="h-5 w-5" />
+                            Call: {PLATFORM_CONTACT.phone}
+                          </a>
+                          <a
+                            href={`mailto:${PLATFORM_CONTACT.email}`}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-800 transition-colors"
+                          >
+                            <Mail className="h-5 w-5" />
+                            Email: {PLATFORM_CONTACT.email}
+                          </a>
+                        </div>
                       </div>
                     )}
                   </div>

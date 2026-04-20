@@ -59,8 +59,8 @@ export default function LoginPage() {
                 className="flex justify-center mb-6"
               >
                 <img
-                  src="/logo.png"
-                  alt="Prinstine Group Logo"
+                  src="/libstaffconnect-logo.png"
+                  alt="Libstaffconnect Logo"
                   className="h-16 w-auto object-contain"
                 />
               </motion.div>

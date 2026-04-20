@@ -7,11 +7,11 @@ import { Toaster } from 'react-hot-toast'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Prinstine Group of Companies - Jobs Platform',
+  title: 'Lib-StaffConnect - Jobs Platform',
   description: 'Connect professionals, companies, and employers on a comprehensive jobs and contracts platform',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/libstaffconnect-logo.png',
+    apple: '/libstaffconnect-logo.png',
   },
 }
 

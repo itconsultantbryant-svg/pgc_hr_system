@@ -26,13 +26,13 @@ export default function Navbar() {
               className="flex-shrink-0"
             >
               <img
-                src="/logo.png"
-                alt="Prinstine Group Logo"
+                src="/libstaffconnect-logo.png"
+                alt="Libstaffconnect Logo"
                 className="h-10 w-auto object-contain"
               />
             </motion.div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent hidden sm:block">
-              Prinstine Group
+              Lib-StaffConnect
             </span>
           </Link>
 

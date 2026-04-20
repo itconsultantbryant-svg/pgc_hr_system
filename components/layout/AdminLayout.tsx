@@ -108,7 +108,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Mobile menu button */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <Link href="/dashboard/admin" className="flex items-center space-x-2">
-          <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
+          <img src="/libstaffconnect-logo.png" alt="Libstaffconnect Logo" className="h-8 w-auto" />
           <span className="font-bold text-gray-900">Admin</span>
         </Link>
         <button
@@ -135,11 +135,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               {/* Logo/Header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-700">
                 <Link href="/dashboard/admin" className="flex items-center space-x-3">
-                  <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
+                  <img src="/libstaffconnect-logo.png" alt="Libstaffconnect Logo" className="h-10 w-auto" />
                   {sidebarOpen && (
                     <div>
                       <h1 className="text-lg font-bold">Admin Panel</h1>
-                      <p className="text-xs text-gray-400">Prinstine Group</p>
+                      <p className="text-xs text-gray-400">Lib-StaffConnect</p>
                     </div>
                   )}
                 </Link>

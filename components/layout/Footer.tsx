@@ -49,11 +49,11 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <img
-                src="/logo.png"
-                alt="Prinstine Group Logo"
+                src="/libstaffconnect-logo.png"
+                alt="Libstaffconnect Logo"
                 className="h-10 w-auto object-contain"
               />
-              <span className="text-xl font-bold text-white">Prinstine Group</span>
+              <span className="text-xl font-bold text-white">Lib-StaffConnect</span>
             </div>
             <p className="text-sm">
               Connecting professionals, companies, and employers on a comprehensive platform
@@ -201,6 +201,24 @@ export default function Footer() {
                 Terms of Service
               </Link>
             </div>
+          </div>
+          <div className="mt-5 flex items-center justify-center md:justify-start gap-3 text-sm text-gray-400">
+            <span>
+              Powered by:{' '}
+              <a
+                href="https://prinstinegroup.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-400 hover:text-primary-300 underline underline-offset-2"
+              >
+                Prinstine Group of Companies
+              </a>
+            </span>
+            <img
+              src="/prinstine_job_platform.png"
+              alt="Prinstine Group Logo"
+              className="h-8 w-auto object-contain"
+            />
           </div>
         </div>
       </div>

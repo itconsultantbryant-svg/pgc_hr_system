@@ -113,7 +113,7 @@ export default function HomePage() {
               Connect with <span className="text-primary-200">Opportunities</span>
             </h1>
             <p className="text-xl md:text-2xl mb-10 text-primary-100 leading-relaxed">
-              Find your next career move or contract opportunity with Prinstine Group
+              Find your next career move or contract opportunity with Lib-StaffConnect
             </p>
             
             {/* Search Bar */}

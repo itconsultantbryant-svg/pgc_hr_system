@@ -4,7 +4,7 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   async redirects() {
     return [
-      { source: '/favicon.ico', destination: '/logo.png', permanent: true },
+      { source: '/favicon.ico', destination: '/libstaffconnect-logo.png', permanent: true },
     ]
   },
   images: {
