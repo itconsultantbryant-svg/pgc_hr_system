@@ -88,7 +88,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+                  className="bg-yellow-500 text-gray-900 px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors font-semibold"
                 >
                   Sign Up
                 </Link>
@@ -153,7 +153,7 @@ export default function Navbar() {
                   </Link>
                   <Link
                     href="/auth/register"
-                    className="block bg-primary-600 text-white px-4 py-2 rounded-lg text-center"
+                    className="block bg-yellow-500 text-gray-900 px-4 py-2 rounded-lg text-center font-semibold"
                   >
                     Sign Up
                   </Link>

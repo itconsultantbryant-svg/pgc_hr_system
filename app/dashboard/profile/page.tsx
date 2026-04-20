@@ -40,6 +40,7 @@ interface ProfileData {
   currentJobTitle: string
   expectedSalary: string
   profilePicture: string
+  profilePictures: string[]
   experiences: ExperienceEntry[]
   educations: EducationEntry[]
   competencies: any[]
@@ -64,6 +65,7 @@ export default function ProfilePage() {
     currentJobTitle: '',
     expectedSalary: '',
     profilePicture: '',
+    profilePictures: [],
     experiences: [],
     educations: [],
     competencies: [],
@@ -99,6 +101,7 @@ export default function ProfilePage() {
             currentJobTitle: data.currentJobTitle || '',
             expectedSalary: data.expectedSalary || '',
             profilePicture: data.profilePicture || '',
+            profilePictures: data.profilePictures || [],
             experiences: (data.experiences || []).map((e: any) => ({
               id: e.id,
               company: e.company || '',
@@ -181,6 +184,48 @@ export default function ProfilePage() {
     }
   }
 
+  const handleAdditionalPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (profile.profilePictures.length >= 3) {
+      toast.error('You can upload up to 3 profile pictures only.')
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const response = await fetch('/api/upload/profile-picture', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setProfile({
+          ...profile,
+          profilePictures: [...profile.profilePictures, data.url].slice(0, 3),
+        })
+        toast.success('Additional profile picture uploaded!')
+      } else {
+        toast.error('Failed to upload additional picture')
+      }
+    } catch (error) {
+      toast.error('An error occurred while uploading')
+    } finally {
+      e.target.value = ''
+    }
+  }
+
+  const removeAdditionalPhoto = (index: number) => {
+    setProfile({
+      ...profile,
+      profilePictures: profile.profilePictures.filter((_, i) => i !== index),
+    })
+  }
+
   if (loading || status === 'loading') {
     return (
       <RoleDashboardLayout title="Profile and resume">
@@ -213,7 +258,7 @@ export default function ProfilePage() {
                     <User className="h-16 w-16 text-gray-400" />
                   </div>
                 )}
-                <label className="absolute bottom-0 right-0 bg-primary-600 text-white p-2 rounded-full cursor-pointer hover:bg-primary-700">
+                <label className="absolute bottom-0 right-0 bg-yellow-500 text-gray-900 p-2 rounded-full cursor-pointer hover:bg-yellow-400">
                   <Upload className="h-4 w-4" />
                   <input
                     type="file"
@@ -227,6 +272,54 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-semibold">Profile Picture</h2>
                 <p className="text-gray-600 text-sm">Upload a professional photo</p>
               </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Extra Profile Pictures</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Add 1-3 pictures to show below your public profile.</p>
+                </div>
+                <label className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
+                  profile.profilePictures.length >= 3
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    : 'bg-yellow-500 text-gray-900 hover:bg-yellow-400 cursor-pointer'
+                }`}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Add picture
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAdditionalPhotoUpload}
+                    className="hidden"
+                    disabled={profile.profilePictures.length >= 3}
+                  />
+                </label>
+              </div>
+
+              {profile.profilePictures.length > 0 ? (
+                <div className="flex gap-3 overflow-x-auto pb-1">
+                  {profile.profilePictures.map((imageUrl, index) => (
+                    <div key={`${imageUrl}-${index}`} className="relative shrink-0">
+                      <img
+                        src={imageUrl}
+                        alt={`Profile extra ${index + 1}`}
+                        className="w-24 h-24 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeAdditionalPhoto(index)}
+                        className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                        aria-label={`Remove photo ${index + 1}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No extra photos added yet.</p>
+              )}
             </div>
 
             {/* Basic Information */}
@@ -591,7 +684,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                className="px-6 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 disabled:opacity-50 font-semibold"
               >
                 {saving ? 'Saving...' : 'Save Profile'}
               </button>

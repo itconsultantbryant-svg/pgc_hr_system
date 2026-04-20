@@ -18,7 +18,7 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
           >
-            About Prinstine Group
+            About Lib-StaffConnect
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -43,7 +43,7 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">Our Mission</h2>
               <div className="space-y-4 text-gray-700 leading-relaxed">
                 <p>
-                  Prinstine Group of Companies is dedicated to creating a comprehensive platform
+                  Lib-StaffConnect is dedicated to creating a comprehensive platform
                   that bridges the gap between job seekers, companies seeking contracts, and employers
                   looking for talent. We believe in empowering individuals and organizations by
                   providing transparent, efficient, and accessible employment and contracting solutions.

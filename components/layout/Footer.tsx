@@ -60,16 +60,16 @@ export default function Footer() {
               for employment and contract opportunities.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="hover:text-primary-400 transition-colors">
+              <a href="#" className="hover:text-yellow-300 transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="hover:text-primary-400 transition-colors">
+              <a href="#" className="hover:text-yellow-300 transition-colors">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="hover:text-primary-400 transition-colors">
+              <a href="#" className="hover:text-yellow-300 transition-colors">
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="hover:text-primary-400 transition-colors">
+              <a href="#" className="hover:text-yellow-300 transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
@@ -80,27 +80,27 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="hover:text-primary-400 transition-colors">
+                <Link href="/" className="hover:text-yellow-300 transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-primary-400 transition-colors">
+                <Link href="/about" className="hover:text-yellow-300 transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-primary-400 transition-colors">
+                <Link href="/services" className="hover:text-yellow-300 transition-colors">
                   Services
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-primary-400 transition-colors">
+                <Link href="/contact" className="hover:text-yellow-300 transition-colors">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/auth/register" className="hover:text-primary-400 transition-colors">
+                <Link href="/auth/register" className="hover:text-yellow-300 transition-colors">
                   Sign Up
                 </Link>
               </li>
@@ -112,22 +112,22 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Services</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/services#job-seekers" className="hover:text-primary-400 transition-colors">
+                <Link href="/services#job-seekers" className="hover:text-yellow-300 transition-colors">
                   For Job Seekers
                 </Link>
               </li>
               <li>
-                <Link href="/services#companies" className="hover:text-primary-400 transition-colors">
+                <Link href="/services#companies" className="hover:text-yellow-300 transition-colors">
                   For Companies
                 </Link>
               </li>
               <li>
-                <Link href="/services#employers" className="hover:text-primary-400 transition-colors">
+                <Link href="/services#employers" className="hover:text-yellow-300 transition-colors">
                   For Employers
                 </Link>
               </li>
               <li>
-                <Link href="/services#packages" className="hover:text-primary-400 transition-colors">
+                <Link href="/services#packages" className="hover:text-yellow-300 transition-colors">
                   Subscription Packages
                 </Link>
               </li>
@@ -140,13 +140,13 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start space-x-3">
                 <Mail className="h-5 w-5 mt-0.5 text-primary-400 flex-shrink-0" />
-                <a href="mailto:info@prinstinegroup.org" className="hover:text-primary-400 transition-colors">
+                <a href="mailto:info@prinstinegroup.org" className="hover:text-yellow-300 transition-colors">
                   info@prinstinegroup.org
                 </a>
               </li>
               <li className="flex items-start space-x-3">
                 <Phone className="h-5 w-5 mt-0.5 text-primary-400 flex-shrink-0" />
-                <a href="tel:+231774917393" className="hover:text-primary-400 transition-colors">
+                <a href="tel:+231774917393" className="hover:text-yellow-300 transition-colors">
                   0774917393
                 </a>
               </li>
@@ -194,10 +194,10 @@ export default function Footer() {
               &copy; {new Date().getFullYear()} Prinstine Group of Companies. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link href="/privacy" className="text-sm hover:text-primary-400 transition-colors">
+              <Link href="/privacy" className="text-sm hover:text-yellow-300 transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-sm hover:text-primary-400 transition-colors">
+              <Link href="/terms" className="text-sm hover:text-yellow-300 transition-colors">
                 Terms of Service
               </Link>
             </div>

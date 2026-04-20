@@ -53,6 +53,7 @@ export async function POST(request: Request) {
       currentJobTitle,
       expectedSalary,
       profilePicture,
+      profilePictures,
       experiences,
       educations,
       competencies,
@@ -75,6 +76,7 @@ export async function POST(request: Request) {
         currentJobTitle,
         expectedSalary,
         profilePicture,
+        profilePictures: Array.isArray(profilePictures) ? profilePictures.slice(0, 3) : [],
       },
       create: {
         userId: session.user.id,
@@ -89,6 +91,7 @@ export async function POST(request: Request) {
         currentJobTitle,
         expectedSalary,
         profilePicture,
+        profilePictures: Array.isArray(profilePictures) ? profilePictures.slice(0, 3) : [],
       },
     })
 

@@ -85,6 +85,7 @@ model JobSeekerProfile {
   phone           String?
   whatsappNumber  String?
   profilePicture  String?
+  profilePictures String[] @default([])
   bio             String?
   location        String?
   category        String?

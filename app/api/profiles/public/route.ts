@@ -8,7 +8,14 @@ export async function GET(request: Request) {
     const type = searchParams.get('type') || 'all'
     const category = searchParams.get('category')
     const location = searchParams.get('location')
+    const address = searchParams.get('address')
     const search = searchParams.get('search')
+    const name = searchParams.get('name')
+    const position = searchParams.get('position')
+    const jobTitle = searchParams.get('jobTitle')
+    const educationLevel = searchParams.get('educationLevel')
+    const skill = searchParams.get('skill')
+    const competency = searchParams.get('competency')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '12')
     const skip = (page - 1) * limit
@@ -30,16 +37,90 @@ export async function GET(request: Request) {
         },
       }
 
-      if (category) where.category = category
-      if (location) where.location = { contains: location, mode: 'insensitive' }
+      const andFilters: any[] = []
 
+      if (category) andFilters.push({ category: { contains: category, mode: 'insensitive' } })
+      if (location) andFilters.push({ location: { contains: location, mode: 'insensitive' } })
+      if (address) andFilters.push({ location: { contains: address, mode: 'insensitive' } })
+      if (jobTitle) andFilters.push({ currentJobTitle: { contains: jobTitle, mode: 'insensitive' } })
+      if (position) {
+        andFilters.push({
+          OR: [
+            { currentJobTitle: { contains: position, mode: 'insensitive' } },
+            { experiences: { some: { position: { contains: position, mode: 'insensitive' } } } },
+          ],
+        })
+      }
+      if (educationLevel) {
+        andFilters.push({
+          educations: {
+            some: {
+              OR: [
+                { degree: { contains: educationLevel, mode: 'insensitive' } },
+                { field: { contains: educationLevel, mode: 'insensitive' } },
+              ],
+            },
+          },
+        })
+      }
+      if (skill) {
+        andFilters.push({
+          competencies: {
+            some: { name: { contains: skill, mode: 'insensitive' } },
+          },
+        })
+      }
+      if (competency) {
+        andFilters.push({
+          competencies: {
+            some: { name: { contains: competency, mode: 'insensitive' } },
+          },
+        })
+      }
+      if (name) {
+        andFilters.push({
+          OR: [
+            { firstName: { contains: name, mode: 'insensitive' } },
+            { lastName: { contains: name, mode: 'insensitive' } },
+          ],
+        })
+      }
       if (search) {
-        where.OR = [
-          { firstName: { contains: search, mode: 'insensitive' } },
-          { lastName: { contains: search, mode: 'insensitive' } },
-          { bio: { contains: search, mode: 'insensitive' } },
-          { currentJobTitle: { contains: search, mode: 'insensitive' } },
-        ]
+        andFilters.push({
+          OR: [
+            { firstName: { contains: search, mode: 'insensitive' } },
+            { lastName: { contains: search, mode: 'insensitive' } },
+            { bio: { contains: search, mode: 'insensitive' } },
+            { currentJobTitle: { contains: search, mode: 'insensitive' } },
+            { category: { contains: search, mode: 'insensitive' } },
+            { location: { contains: search, mode: 'insensitive' } },
+            { competencies: { some: { name: { contains: search, mode: 'insensitive' } } } },
+            {
+              educations: {
+                some: {
+                  OR: [
+                    { degree: { contains: search, mode: 'insensitive' } },
+                    { field: { contains: search, mode: 'insensitive' } },
+                  ],
+                },
+              },
+            },
+            {
+              experiences: {
+                some: {
+                  OR: [
+                    { position: { contains: search, mode: 'insensitive' } },
+                    { company: { contains: search, mode: 'insensitive' } },
+                  ],
+                },
+              },
+            },
+          ],
+        })
+      }
+
+      if (andFilters.length > 0) {
+        where.AND = andFilters
       }
 
       jobSeekers = await prisma.jobSeekerProfile.findMany({
@@ -58,6 +139,21 @@ export async function GET(request: Request) {
             },
           },
           competencies: { take: 5 },
+          experiences: {
+            select: {
+              id: true,
+              position: true,
+            },
+            take: 3,
+          },
+          educations: {
+            select: {
+              id: true,
+              degree: true,
+              field: true,
+            },
+            take: 3,
+          },
         },
         orderBy: { updatedAt: 'desc' },
       })
@@ -77,15 +173,18 @@ export async function GET(request: Request) {
         },
       }
 
-      if (category || search) {
+      if (category || search || name) {
+        const searchTerm = search || name || category
         where.OR = [
-          { companyName: { contains: search || category, mode: 'insensitive' } },
-          { industry: { contains: category || search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
+          { companyName: { contains: searchTerm, mode: 'insensitive' } },
+          { industry: { contains: category || searchTerm, mode: 'insensitive' } },
+          { description: { contains: searchTerm, mode: 'insensitive' } },
         ]
       }
 
-      if (location) where.location = { contains: location, mode: 'insensitive' }
+      if (location || address) {
+        where.location = { contains: location || address, mode: 'insensitive' }
+      }
 
       companies = await prisma.companyProfile.findMany({
         where,

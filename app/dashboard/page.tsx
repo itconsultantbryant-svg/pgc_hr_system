@@ -195,7 +195,7 @@ export default function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <FileText className="h-5 w-5 text-primary-600" />
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{seeker?.applications ?? '—'}</p>
@@ -205,7 +205,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <Send className="h-5 w-5 text-amber-600" />
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{seeker?.pending ?? '—'}</p>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <TrendingUp className="h-5 w-5 text-emerald-600" />
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -227,7 +227,7 @@ export default function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Link
               href="/dashboard/profile"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm transition hover:border-yellow-300 hover:shadow-md dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <div className="rounded-xl bg-primary-50 p-3 dark:bg-primary-900/30">
                 <User className="h-6 w-6 text-primary-600" />
@@ -239,7 +239,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/dashboard/career"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm transition hover:border-yellow-300 hover:shadow-md dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <div className="rounded-xl bg-blue-50 p-3 dark:bg-blue-900/30">
                 <Briefcase className="h-6 w-6 text-blue-600" />
@@ -251,7 +251,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/dashboard/applications"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm transition hover:border-yellow-300 hover:shadow-md dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <div className="rounded-xl bg-green-50 p-3 dark:bg-green-900/30">
                 <FileText className="h-6 w-6 text-green-600" />
@@ -263,7 +263,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/dashboard/subscription"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm transition hover:border-yellow-300 hover:shadow-md dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <div className="rounded-xl bg-yellow-50 p-3 dark:bg-yellow-900/30">
                 <CreditCard className="h-6 w-6 text-yellow-600" />
@@ -291,7 +291,7 @@ export default function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <ClipboardList className="h-5 w-5 text-primary-600" />
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{company?.contracts ?? '—'}</p>
@@ -307,7 +307,7 @@ export default function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Link
               href="/dashboard/company-profile"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <Building2 className="h-8 w-8 text-blue-600" />
               <div>
@@ -317,7 +317,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/dashboard/company/contracts"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <Briefcase className="h-8 w-8 text-orange-600" />
               <div>
@@ -343,7 +343,7 @@ export default function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <Briefcase className="h-5 w-5 text-primary-600" />
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{org?.openJobs ?? '—'}</p>
@@ -353,7 +353,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <FileText className="h-5 w-5 text-amber-600" />
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{org?.pendingApps ?? '—'}</p>
@@ -363,7 +363,7 @@ export default function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Link
               href="/dashboard/job-posts"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <Briefcase className="h-8 w-8 text-orange-600" />
               <div>
@@ -373,7 +373,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/dashboard/applications"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <FileText className="h-8 w-8 text-green-600" />
               <div>
@@ -383,7 +383,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/dashboard/organization-profile"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <Landmark className="h-8 w-8 text-purple-600" />
               <div>
@@ -393,7 +393,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/dashboard/settings"
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="flex items-center gap-4 rounded-2xl border border-yellow-100 bg-white p-5 shadow-sm dark:border-yellow-900/30 dark:bg-gray-900"
             >
               <Settings className="h-8 w-8 text-gray-600" />
               <div>

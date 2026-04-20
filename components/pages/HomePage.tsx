@@ -11,7 +11,13 @@ export default function HomePage() {
   const [filters, setFilters] = useState({
     category: '',
     location: '',
-    type: 'all' // all, job-seekers, companies
+    type: 'all', // all, job-seekers, companies
+    name: '',
+    jobTitle: '',
+    position: '',
+    educationLevel: '',
+    skill: '',
+    competency: '',
   })
   const [profiles, setProfiles] = useState<any>({ jobSeekers: [], companies: [] })
   const [loading, setLoading] = useState(true)
@@ -63,6 +69,12 @@ export default function HomePage() {
         type: filters.type,
         ...(filters.category && { category: filters.category }),
         ...(filters.location && { location: filters.location }),
+        ...(filters.name && { name: filters.name }),
+        ...(filters.jobTitle && { jobTitle: filters.jobTitle }),
+        ...(filters.position && { position: filters.position }),
+        ...(filters.educationLevel && { educationLevel: filters.educationLevel }),
+        ...(filters.skill && { skill: filters.skill }),
+        ...(filters.competency && { competency: filters.competency }),
         ...(searchQuery && { search: searchQuery }),
       })
       const response = await fetch(`/api/profiles/public?${params}`)
@@ -110,7 +122,7 @@ export default function HomePage() {
             className="text-center max-w-4xl mx-auto"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Connect with <span className="text-primary-200">Opportunities</span>
+              Connect with <span className="text-yellow-200">Opportunities</span>
             </h1>
             <p className="text-xl md:text-2xl mb-10 text-primary-100 leading-relaxed">
               Find your next career move or contract opportunity with Lib-StaffConnect
@@ -133,7 +145,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={fetchProfiles}
-                  className="btn btn-primary whitespace-nowrap px-8 py-3 text-lg"
+                  className="btn btn-primary whitespace-nowrap px-8 py-3 text-lg shadow-lg shadow-yellow-200/30"
                 >
                   Search
                 </button>
@@ -276,9 +288,9 @@ export default function HomePage() {
       </section>
 
       {/* Filters */}
-      <section className="py-8 border-b border-gray-200 dark:border-gray-800">
+      <section className="py-8 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-white via-yellow-50/40 to-white dark:from-gray-900 dark:via-yellow-900/10 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
             <div className="flex items-center space-x-2">
               <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               <span className="font-semibold text-gray-900 dark:text-gray-100">Filters:</span>
@@ -305,9 +317,51 @@ export default function HomePage() {
             </select>
             <input
               type="text"
-              placeholder="Location"
+              placeholder="Address / Location"
               value={filters.location}
               onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="Name"
+              value={filters.name}
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="Job title"
+              value={filters.jobTitle}
+              onChange={(e) => setFilters({ ...filters, jobTitle: e.target.value })}
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="Position"
+              value={filters.position}
+              onChange={(e) => setFilters({ ...filters, position: e.target.value })}
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="Educational level"
+              value={filters.educationLevel}
+              onChange={(e) => setFilters({ ...filters, educationLevel: e.target.value })}
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="Skill"
+              value={filters.skill}
+              onChange={(e) => setFilters({ ...filters, skill: e.target.value })}
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="Competency"
+              value={filters.competency}
+              onChange={(e) => setFilters({ ...filters, competency: e.target.value })}
               className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
@@ -442,7 +496,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-primary-600 text-white">
+      <section className="py-16 bg-gradient-to-r from-primary-700 via-primary-600 to-yellow-500 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-xl mb-8 text-primary-100">
@@ -451,13 +505,13 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/auth/register"
-              className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="bg-yellow-400 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
             >
               Create Account
             </Link>
             <Link
               href="/services"
-              className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors"
+              className="bg-transparent border-2 border-yellow-200 text-white px-8 py-3 rounded-lg font-semibold hover:bg-yellow-200 hover:text-gray-900 transition-colors"
             >
               Learn More
             </Link>

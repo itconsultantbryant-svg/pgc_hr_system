@@ -108,7 +108,7 @@ export default function JobsPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-yellow-50/30 to-gray-100 dark:from-gray-900 dark:via-yellow-900/10 dark:to-gray-800 py-8">
         <div className="container-custom">
           <div className="mb-10">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Job Openings</h1>
@@ -118,7 +118,7 @@ export default function JobsPage() {
           </div>
 
           {/* Search and Filters */}
-          <div className="card mb-8">
+          <div className="card mb-8 border-yellow-100 dark:border-yellow-900/30">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="md:col-span-2">
                 <div className="relative">
@@ -158,7 +158,7 @@ export default function JobsPage() {
           </div>
 
           {/* Jobs Page Content */}
-          <div className="card mb-8">
+          <div className="card mb-8 border-yellow-100 dark:border-yellow-900/30">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-gray-900">Latest Job Updates</h2>
             </div>
@@ -169,10 +169,10 @@ export default function JobsPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {jobsContent.map((item) => (
-                  <div key={item.id} className="border border-gray-100 rounded-lg p-4 bg-white">
+                  <div key={item.id} className="border border-yellow-100 dark:border-yellow-900/30 rounded-lg p-4 bg-white dark:bg-gray-800">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg font-semibold">{item.title}</h3>
-                      <span className="inline-block bg-primary-100 text-primary-800 px-2 py-1 rounded text-xs">
+                      <span className="inline-block bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200 px-2 py-1 rounded text-xs">
                         {item.type}
                       </span>
                     </div>

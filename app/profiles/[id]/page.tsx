@@ -3,7 +3,7 @@
 import Layout from '@/components/layout/Layout'
 import { useParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { User, Building2, MapPin, Mail, Phone, Briefcase, GraduationCap, Award, DollarSign, MessageCircle } from 'lucide-react'
+import { User, Building2, MapPin, Mail, Phone, Briefcase, GraduationCap, Award, DollarSign, MessageCircle, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
@@ -23,6 +23,7 @@ interface Profile {
     currentJobTitle: string
     expectedSalary: string
     profilePicture: string
+    profilePictures?: string[]
     phone?: string | null
     whatsappNumber?: string | null
     experiences: any[]
@@ -70,12 +71,19 @@ export default function ProfileDetailPage() {
   const profileId = params.id as string
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [contactMenuOpen, setContactMenuOpen] = useState(false)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
 
   useEffect(() => {
     if (profileId) {
       fetchProfile()
     }
   }, [profileId])
+
+  useEffect(() => {
+    setActiveImageIndex(0)
+    setContactMenuOpen(false)
+  }, [profile?.id])
 
   const fetchProfile = async () => {
     try {
@@ -137,6 +145,34 @@ export default function ProfileDetailPage() {
   }
 
   const isDirectPackage = !!profile.jobSeeker?.hasDirectPackage
+  const directContactItems = [
+    profile.jobSeeker?.whatsappNumber
+      ? {
+          id: 'whatsapp',
+          label: `WhatsApp: ${profile.jobSeeker.whatsappNumber}`,
+          href: `https://wa.me/${profile.jobSeeker.whatsappNumber.replace(/\D/g, '')}`,
+          external: true,
+        }
+      : null,
+    profile.jobSeeker?.user?.email
+      ? {
+          id: 'email',
+          label: `Email: ${profile.jobSeeker.user.email}`,
+          href: `mailto:${profile.jobSeeker.user.email}`,
+          external: false,
+        }
+      : null,
+    profile.jobSeeker?.phone
+      ? {
+          id: 'phone',
+          label: `Phone: ${profile.jobSeeker.phone}`,
+          href: `tel:${profile.jobSeeker.phone}`,
+          external: false,
+        }
+      : null,
+  ].filter(Boolean) as Array<{ id: string; label: string; href: string; external: boolean }>
+
+  const jobSeekerImages = (profile.jobSeeker?.profilePictures || []).filter(Boolean) as string[]
 
   return (
     <Layout>
@@ -192,6 +228,40 @@ export default function ProfileDetailPage() {
                   </div>
                 </div>
               </div>
+
+              {jobSeekerImages.length > 0 && (
+                <div className="px-8 pt-6">
+                  <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <img
+                      src={jobSeekerImages[activeImageIndex]}
+                      alt={`${profile.jobSeeker.firstName} ${profile.jobSeeker.lastName} profile image ${activeImageIndex + 1}`}
+                      className="w-full h-72 md:h-96 object-cover"
+                    />
+                  </div>
+                  {jobSeekerImages.length > 1 && (
+                    <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+                      {jobSeekerImages.map((imageUrl, index) => (
+                        <button
+                          key={`${imageUrl}-${index}`}
+                          type="button"
+                          onClick={() => setActiveImageIndex(index)}
+                          className={`shrink-0 rounded-lg overflow-hidden border-2 transition ${
+                            activeImageIndex === index
+                              ? 'border-primary-600 ring-2 ring-yellow-300/60'
+                              : 'border-transparent opacity-80 hover:opacity-100'
+                          }`}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={`Thumbnail ${index + 1}`}
+                            className="w-20 h-20 object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Content */}
               <div className="p-8 space-y-8">
@@ -351,6 +421,35 @@ export default function ProfileDetailPage() {
                   </div>
                 )}
               </div>
+
+              {isDirectPackage && directContactItems.length > 0 && (
+                <div className="fixed bottom-6 right-6 z-40">
+                  <button
+                    type="button"
+                    onClick={() => setContactMenuOpen((prev) => !prev)}
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-yellow-500 text-gray-900 font-semibold shadow-lg hover:bg-yellow-400 transition-colors"
+                  >
+                    Contact Me
+                    <ChevronDown className={`h-4 w-4 transition-transform ${contactMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {contactMenuOpen && (
+                    <div className="mt-2 w-80 max-w-[90vw] rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl p-2">
+                      {directContactItems.map((item) => (
+                        <a
+                          key={item.id}
+                          href={item.href}
+                          target={item.external ? '_blank' : undefined}
+                          rel={item.external ? 'noopener noreferrer' : undefined}
+                          className="block px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
+                          onClick={() => setContactMenuOpen(false)}
+                        >
+                          {item.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
           ) : profile.type === 'company' && profile.company ? (
             (() => {
