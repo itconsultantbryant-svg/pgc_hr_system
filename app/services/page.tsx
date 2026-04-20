@@ -100,7 +100,7 @@ export default function ServicesPage() {
               <ul className="space-y-3 mb-8">
                 {[
                   'Limited profile showcase',
-                  'Contact through Prinstine Group',
+                  'Contact through Lib-StaffConnect',
                   'Basic profile details visible',
                   'Access to selected job postings',
                   'Privacy protection',

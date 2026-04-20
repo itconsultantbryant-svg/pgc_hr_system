@@ -106,6 +106,16 @@ model JobSeekerProfile {
   @@map("job_seeker_profiles")
 }
 
+model JobCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("job_categories")
+}
+
 // Experience
 model Experience {
   id          String   @id @default(cuid())

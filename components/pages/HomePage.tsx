@@ -10,16 +10,14 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState({
     category: '',
-    location: '',
-    type: 'all', // all, job-seekers, companies
-    name: '',
-    jobTitle: '',
-    position: '',
-    educationLevel: '',
-    skill: '',
-    competency: '',
+    type: 'all', // all, talents, contractors, hiring-entities, jobs
   })
-  const [profiles, setProfiles] = useState<any>({ jobSeekers: [], companies: [] })
+  const [results, setResults] = useState<any>({
+    jobSeekers: [],
+    companies: [],
+    organizations: [],
+    jobs: [],
+  })
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     jobSeekers: 0,
@@ -68,19 +66,12 @@ export default function HomePage() {
       const params = new URLSearchParams({
         type: filters.type,
         ...(filters.category && { category: filters.category }),
-        ...(filters.location && { location: filters.location }),
-        ...(filters.name && { name: filters.name }),
-        ...(filters.jobTitle && { jobTitle: filters.jobTitle }),
-        ...(filters.position && { position: filters.position }),
-        ...(filters.educationLevel && { educationLevel: filters.educationLevel }),
-        ...(filters.skill && { skill: filters.skill }),
-        ...(filters.competency && { competency: filters.competency }),
-        ...(searchQuery && { search: searchQuery }),
+        ...(searchQuery && { query: searchQuery }),
       })
-      const response = await fetch(`/api/profiles/public?${params}`)
+      const response = await fetch(`/api/search?${params}`)
       if (response.ok) {
         const data = await response.json()
-        setProfiles(data)
+        setResults(data)
       }
     } catch (error) {
       console.error('Error fetching profiles:', error)
@@ -135,10 +126,10 @@ export default function HomePage() {
                   <Search className="h-5 w-5 text-gray-400 flex-shrink-0" />
                   <input
                     type="text"
-                    placeholder="Search by skills, job title, company..."
+                    placeholder="Search talents, contractors, jobs, hiring entities..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && fetchProfiles()}
+                    onKeyDown={(e) => e.key === 'Enter' && fetchProfiles()}
                     className="flex-1 border-none outline-none text-gray-900 bg-transparent text-lg placeholder-gray-400"
                   />
                 </div>
@@ -290,7 +281,7 @@ export default function HomePage() {
       {/* Filters */}
       <section className="py-8 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-white via-yellow-50/40 to-white dark:from-gray-900 dark:via-yellow-900/10 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-center">
             <div className="flex items-center space-x-2">
               <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               <span className="font-semibold text-gray-900 dark:text-gray-100">Filters:</span>
@@ -301,8 +292,10 @@ export default function HomePage() {
               className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               <option value="all">All</option>
-              <option value="job-seekers">Job Seekers</option>
-              <option value="companies">Companies</option>
+              <option value="talents">Talents</option>
+              <option value="contractors">Contractors</option>
+              <option value="hiring-entities">Hiring Entities</option>
+              <option value="jobs">Jobs</option>
             </select>
             <select
               value={filters.category}
@@ -315,55 +308,6 @@ export default function HomePage() {
               <option value="healthcare">Healthcare</option>
               <option value="education">Education</option>
             </select>
-            <input
-              type="text"
-              placeholder="Address / Location"
-              value={filters.location}
-              onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Name"
-              value={filters.name}
-              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Job title"
-              value={filters.jobTitle}
-              onChange={(e) => setFilters({ ...filters, jobTitle: e.target.value })}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Position"
-              value={filters.position}
-              onChange={(e) => setFilters({ ...filters, position: e.target.value })}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Educational level"
-              value={filters.educationLevel}
-              onChange={(e) => setFilters({ ...filters, educationLevel: e.target.value })}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Skill"
-              value={filters.skill}
-              onChange={(e) => setFilters({ ...filters, skill: e.target.value })}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Competency"
-              value={filters.competency}
-              onChange={(e) => setFilters({ ...filters, competency: e.target.value })}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            />
           </div>
         </div>
       </section>
@@ -376,7 +320,7 @@ export default function HomePage() {
             <div className="text-center py-12">
               <div className="text-lg text-gray-600 dark:text-gray-400">Loading profiles...</div>
             </div>
-          ) : profiles.jobSeekers.length === 0 && profiles.companies.length === 0 ? (
+          ) : results.jobSeekers.length === 0 && results.companies.length === 0 && results.organizations.length === 0 && results.jobs.length === 0 ? (
             <div className="text-center py-12">
               <Users className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">No profiles found</h3>
@@ -387,7 +331,7 @@ export default function HomePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Job Seeker Profiles */}
-              {profiles.jobSeekers.map((profile: any) => (
+              {results.jobSeekers.map((profile: any) => (
                 <motion.div
                   key={profile.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -449,7 +393,7 @@ export default function HomePage() {
               ))}
 
               {/* Company Profiles */}
-              {profiles.companies.map((company: any) => (
+              {results.companies.map((company: any) => (
                 <motion.div
                   key={company.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -487,6 +431,63 @@ export default function HomePage() {
                     className="btn btn-outline w-full justify-center group-hover:bg-primary-600 group-hover:text-white transition-all"
                   >
                     View Company
+                  </Link>
+                </motion.div>
+              ))}
+
+              {/* Hiring Entity Profiles */}
+              {results.organizations.map((org: any) => (
+                <motion.div
+                  key={org.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="card card-hover group"
+                >
+                  <div className="flex items-start space-x-4 mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl flex items-center justify-center border-2 border-yellow-300">
+                      <Building2 className="h-8 w-8 text-yellow-700" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{org.organizationName}</h3>
+                      <p className="text-gray-600 text-sm truncate">{org.type || 'Hiring Entity'}</p>
+                    </div>
+                  </div>
+                  {org.description && (
+                    <p className="text-gray-700 mb-4 line-clamp-2 leading-relaxed">{org.description}</p>
+                  )}
+                  {org.location && (
+                    <p className="text-gray-600 text-sm mb-4 flex items-center">
+                      <MapPin className="h-4 w-4 mr-1.5 text-primary-500 flex-shrink-0" />
+                      <span className="truncate">{org.location}</span>
+                    </p>
+                  )}
+                </motion.div>
+              ))}
+
+              {/* Job Listings */}
+              {results.jobs.map((job: any) => (
+                <motion.div
+                  key={job.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="card card-hover group"
+                >
+                  <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">{job.title}</h3>
+                  <p className="text-gray-600 text-sm mb-2">{job.organization?.organizationName || 'Organization'}</p>
+                  {job.location && (
+                    <p className="text-gray-600 text-sm mb-3 flex items-center">
+                      <MapPin className="h-4 w-4 mr-1.5 text-primary-500 flex-shrink-0" />
+                      <span className="truncate">{job.location}</span>
+                    </p>
+                  )}
+                  {job.description && (
+                    <p className="text-gray-700 mb-4 line-clamp-2 leading-relaxed">{job.description}</p>
+                  )}
+                  <Link
+                    href={`/jobs/${job.id}`}
+                    className="btn btn-outline w-full justify-center group-hover:bg-primary-600 group-hover:text-white transition-all"
+                  >
+                    View Job
                   </Link>
                 </motion.div>
               ))}

@@ -17,7 +17,7 @@ export default function TermsPage() {
             Terms of use
           </motion.h1>
           <p className="mx-auto mt-3 max-w-2xl text-primary-100">
-            Rules for using the Prinstine Group Careers platform.
+            Rules for using the Lib-StaffConnect Careers platform.
           </p>
         </div>
       </section>

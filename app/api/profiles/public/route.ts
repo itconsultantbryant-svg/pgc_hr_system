@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/prisma/client'
 
+export const dynamic = 'force-dynamic'
+
 // GET - Get public profiles (for home page listings)
 export async function GET(request: Request) {
   try {

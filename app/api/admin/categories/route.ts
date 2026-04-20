@@ -12,13 +12,13 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const contents = await prisma.contentItem.findMany({
-      orderBy: { updatedAt: 'desc' },
+    const categories = await prisma.jobCategory.findMany({
+      orderBy: [{ isActive: 'desc' }, { name: 'asc' }],
     })
 
-    return NextResponse.json(contents)
-  } catch (error: any) {
-    console.error('Error fetching contents:', error)
+    return NextResponse.json(categories)
+  } catch (error) {
+    console.error('Error fetching admin categories:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -31,26 +31,27 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { title, type, content, imageUrl, position, isActive } = body
+    const name = (body?.name || '').trim()
 
-    if (!title || !type || !content || !position) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    if (!name) {
+      return NextResponse.json({ error: 'Category name is required' }, { status: 400 })
     }
 
-    const newContent = await prisma.contentItem.create({
-      data: {
-        title,
-        type,
-        content,
-        imageUrl: imageUrl || null,
-        position,
-        isActive: isActive ?? true,
-      },
+    const existing = await prisma.jobCategory.findFirst({
+      where: { name: { equals: name, mode: 'insensitive' } },
     })
 
-    return NextResponse.json(newContent)
-  } catch (error: any) {
-    console.error('Error creating content:', error)
+    if (existing) {
+      return NextResponse.json({ error: 'Category already exists' }, { status: 409 })
+    }
+
+    const created = await prisma.jobCategory.create({
+      data: { name, isActive: true },
+    })
+
+    return NextResponse.json(created, { status: 201 })
+  } catch (error) {
+    console.error('Error creating category:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

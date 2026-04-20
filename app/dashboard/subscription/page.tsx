@@ -166,7 +166,7 @@ export default function SubscriptionPage() {
                     </li>
                     <li className="flex items-start">
                       <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span>Contact through Prinstine Group</span>
+                      <span>Contact through Lib-StaffConnect</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />

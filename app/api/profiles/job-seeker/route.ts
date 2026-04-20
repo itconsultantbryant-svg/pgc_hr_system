@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/prisma/client'
 
+export const dynamic = 'force-dynamic'
+
 // GET - Get job seeker profile
 export async function GET(request: Request) {
   try {

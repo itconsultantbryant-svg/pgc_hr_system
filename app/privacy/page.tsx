@@ -17,7 +17,7 @@ export default function PrivacyPage() {
             Privacy policy
           </motion.h1>
           <p className="mx-auto mt-3 max-w-2xl text-primary-100">
-            How we handle information when you use the Prinstine Group Careers platform.
+            How we handle information when you use the Lib-StaffConnect Careers platform.
           </p>
         </div>
       </section>

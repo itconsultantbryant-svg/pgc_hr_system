@@ -46,6 +46,10 @@ export default function Navbar() {
               Jobs
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 dark:bg-primary-500 group-hover:w-full transition-all duration-200"></span>
             </Link>
+            <Link href="/talent" className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group">
+              Talent
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 dark:bg-primary-500 group-hover:w-full transition-all duration-200"></span>
+            </Link>
             <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group">
               About
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 dark:bg-primary-500 group-hover:w-full transition-all duration-200"></span>
@@ -124,6 +128,9 @@ export default function Navbar() {
               </Link>
               <Link href="/jobs" className="block text-gray-700 hover:text-primary-600">
                 Jobs
+              </Link>
+              <Link href="/talent" className="block text-gray-700 hover:text-primary-600">
+                Talent
               </Link>
               <Link href="/about" className="block text-gray-700 hover:text-primary-600">
                 About

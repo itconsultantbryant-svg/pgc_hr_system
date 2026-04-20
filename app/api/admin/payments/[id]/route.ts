@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/prisma/client'
 
+export const dynamic = 'force-dynamic'
+
 // PATCH - Approve or reject payment
 export async function PATCH(
   request: Request,

@@ -48,7 +48,7 @@ export default function ContactPage() {
             transition={{ delay: 0.1 }}
             className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto"
           >
-            Get in touch with our team for any questions or support
+            Get in touch with the Lib-StaffConnect team for any questions or support
           </motion.p>
         </div>
       </section>

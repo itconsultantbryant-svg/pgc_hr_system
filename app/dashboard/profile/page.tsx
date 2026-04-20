@@ -48,11 +48,19 @@ interface ProfileData {
   languages: any[]
 }
 
+interface JobCategoryOption {
+  id: string
+  name: string
+}
+
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [profileImageUploading, setProfileImageUploading] = useState(false)
+  const [extraImageUploading, setExtraImageUploading] = useState(false)
+  const [categories, setCategories] = useState<JobCategoryOption[]>([])
   const [profile, setProfile] = useState<ProfileData>({
     firstName: '',
     lastName: '',
@@ -82,6 +90,21 @@ export default function ProfilePage() {
       fetchProfile()
     }
   }, [status, session, router])
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories', { cache: 'no-store' })
+      if (!response.ok) return
+      const data = await response.json()
+      setCategories(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
 
   const fetchProfile = async () => {
     try {
@@ -163,6 +186,10 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    const previewUrl = URL.createObjectURL(file)
+    setProfile((prev) => ({ ...prev, profilePicture: previewUrl }))
+    setProfileImageUploading(true)
+
     const formData = new FormData()
     formData.append('file', file)
 
@@ -174,13 +201,19 @@ export default function ProfilePage() {
 
       if (response.ok) {
         const data = await response.json()
-        setProfile({ ...profile, profilePicture: data.url })
+        setProfile((prev) => ({ ...prev, profilePicture: data.url }))
         toast.success('Profile picture uploaded successfully!')
       } else {
         toast.error('Failed to upload profile picture')
+        await fetchProfile()
       }
     } catch (error) {
       toast.error('An error occurred while uploading')
+      await fetchProfile()
+    } finally {
+      URL.revokeObjectURL(previewUrl)
+      setProfileImageUploading(false)
+      e.target.value = ''
     }
   }
 
@@ -193,6 +226,13 @@ export default function ProfilePage() {
       return
     }
 
+    const previewUrl = URL.createObjectURL(file)
+    setExtraImageUploading(true)
+    setProfile((prev) => ({
+      ...prev,
+      profilePictures: [...prev.profilePictures, previewUrl].slice(0, 3),
+    }))
+
     const formData = new FormData()
     formData.append('file', file)
 
@@ -204,17 +244,30 @@ export default function ProfilePage() {
 
       if (response.ok) {
         const data = await response.json()
-        setProfile({
-          ...profile,
-          profilePictures: [...profile.profilePictures, data.url].slice(0, 3),
+        setProfile((prev) => {
+          const withoutPreview = prev.profilePictures.filter((url) => url !== previewUrl)
+          return {
+            ...prev,
+            profilePictures: [...withoutPreview, data.url].slice(0, 3),
+          }
         })
         toast.success('Additional profile picture uploaded!')
       } else {
+        setProfile((prev) => ({
+          ...prev,
+          profilePictures: prev.profilePictures.filter((url) => url !== previewUrl),
+        }))
         toast.error('Failed to upload additional picture')
       }
     } catch (error) {
+      setProfile((prev) => ({
+        ...prev,
+        profilePictures: prev.profilePictures.filter((url) => url !== previewUrl),
+      }))
       toast.error('An error occurred while uploading')
     } finally {
+      URL.revokeObjectURL(previewUrl)
+      setExtraImageUploading(false)
       e.target.value = ''
     }
   }
@@ -251,7 +304,7 @@ export default function ProfilePage() {
                   <img
                     src={profile.profilePicture}
                     alt="Profile"
-                    className="w-32 h-32 rounded-full object-cover"
+                    className={`w-32 h-32 rounded-full object-cover ${profileImageUploading ? 'opacity-70' : ''}`}
                   />
                 ) : (
                   <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">
@@ -270,7 +323,9 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold">Profile Picture</h2>
-                <p className="text-gray-600 text-sm">Upload a professional photo</p>
+                <p className="text-gray-600 text-sm">
+                  Upload a professional photo {profileImageUploading ? '(uploading...)' : ''}
+                </p>
               </div>
             </div>
 
@@ -286,7 +341,7 @@ export default function ProfilePage() {
                     : 'bg-yellow-500 text-gray-900 hover:bg-yellow-400 cursor-pointer'
                 }`}>
                   <Upload className="h-4 w-4 mr-2" />
-                  Add picture
+                  {extraImageUploading ? 'Uploading...' : 'Add picture'}
                   <input
                     type="file"
                     accept="image/*"
@@ -408,12 +463,21 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <input
-                  type="text"
+                <select
                   value={profile.category}
                   onChange={(e) => setProfile({ ...profile, category: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
+                >
+                  <option value="">Select category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                  {profile.category && !categories.some((category) => category.name === profile.category) ? (
+                    <option value={profile.category}>{profile.category}</option>
+                  ) : null}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

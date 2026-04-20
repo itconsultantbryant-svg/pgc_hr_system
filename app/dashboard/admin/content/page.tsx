@@ -20,6 +20,14 @@ interface ContentItem {
   updatedAt: string
 }
 
+interface JobCategory {
+  id: string
+  name: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export default function AdminContentPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -28,6 +36,11 @@ export default function AdminContentPage() {
   const [showModal, setShowModal] = useState(false)
   const [editingContent, setEditingContent] = useState<ContentItem | null>(null)
   const [saving, setSaving] = useState(false)
+  const [categories, setCategories] = useState<JobCategory[]>([])
+  const [categoryName, setCategoryName] = useState('')
+  const [categorySaving, setCategorySaving] = useState(false)
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
+  const [editingCategoryName, setEditingCategoryName] = useState('')
   const [formData, setFormData] = useState({
     title: '',
     type: 'text' as 'text' | 'image' | 'advertisement',
@@ -55,6 +68,21 @@ export default function AdminContentPage() {
     }
   }
 
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/admin/categories', { cache: 'no-store' })
+      if (response.ok) {
+        const data = await response.json()
+        setCategories(Array.isArray(data) ? data : [])
+      } else {
+        toast.error('Failed to fetch categories')
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+      toast.error('Failed to fetch categories')
+    }
+  }
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/login')
@@ -62,8 +90,113 @@ export default function AdminContentPage() {
       router.push('/dashboard')
     } else if (status === 'authenticated') {
       fetchContents()
+      fetchCategories()
     }
   }, [status, session, router])
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const name = categoryName.trim()
+    if (!name) {
+      toast.error('Category name is required')
+      return
+    }
+
+    try {
+      setCategorySaving(true)
+      const response = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error(data.error || 'Failed to create category')
+        return
+      }
+
+      setCategories((prev) => [data, ...prev])
+      setCategoryName('')
+      toast.success('Category added')
+    } catch (error) {
+      console.error('Error creating category:', error)
+      toast.error('Failed to create category')
+    } finally {
+      setCategorySaving(false)
+    }
+  }
+
+  const handleUpdateCategory = async (id: string) => {
+    const name = editingCategoryName.trim()
+    if (!name) {
+      toast.error('Category name is required')
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/categories/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        toast.error(data.error || 'Failed to update category')
+        return
+      }
+
+      setCategories((prev) => prev.map((category) => (category.id === id ? data : category)))
+      setEditingCategoryId(null)
+      setEditingCategoryName('')
+      toast.success('Category updated')
+    } catch (error) {
+      console.error('Error updating category:', error)
+      toast.error('Failed to update category')
+    }
+  }
+
+  const handleToggleCategory = async (category: JobCategory) => {
+    try {
+      const response = await fetch(`/api/admin/categories/${category.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !category.isActive }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        toast.error(data.error || 'Failed to update category')
+        return
+      }
+      setCategories((prev) => prev.map((item) => (item.id === category.id ? data : item)))
+      toast.success(data.isActive ? 'Category enabled' : 'Category disabled')
+    } catch (error) {
+      console.error('Error toggling category:', error)
+      toast.error('Failed to update category')
+    }
+  }
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm('Delete this category?')) return
+
+    try {
+      const response = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' })
+      const data = await response.json()
+      if (!response.ok) {
+        toast.error(data.error || 'Failed to delete category')
+        return
+      }
+      setCategories((prev) => prev.filter((category) => category.id !== id))
+      if (editingCategoryId === id) {
+        setEditingCategoryId(null)
+        setEditingCategoryName('')
+      }
+      toast.success('Category deleted')
+    } catch (error) {
+      console.error('Error deleting category:', error)
+      toast.error('Failed to delete category')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -230,6 +363,118 @@ export default function AdminContentPage() {
                   on the homepage, jobs page, or throughout the platform.
                 </p>
               </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="bg-white rounded-xl shadow-soft border border-yellow-100 p-6 mb-6"
+          >
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Job Seeker Categories</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Categories added here appear in the job seeker profile category dropdown.
+                </p>
+              </div>
+              <form onSubmit={handleCreateCategory} className="flex w-full lg:w-auto gap-2">
+                <input
+                  type="text"
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                  placeholder="Add new category"
+                  className="w-full lg:w-72 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+                <button
+                  type="submit"
+                  disabled={categorySaving}
+                  className="bg-yellow-500 text-gray-900 px-4 py-2 rounded-lg hover:bg-yellow-400 font-semibold disabled:opacity-60"
+                >
+                  {categorySaving ? 'Adding...' : 'Add'}
+                </button>
+              </form>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              {categories.length === 0 ? (
+                <p className="text-sm text-gray-500">No categories added yet.</p>
+              ) : (
+                categories.map((category) => (
+                  <div
+                    key={category.id}
+                    className="border border-gray-100 rounded-lg px-3 py-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    {editingCategoryId === category.id ? (
+                      <div className="flex w-full gap-2">
+                        <input
+                          type="text"
+                          value={editingCategoryName}
+                          onChange={(e) => setEditingCategoryName(e.target.value)}
+                          className="flex-1 border rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateCategory(category.id)}
+                          className="px-3 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 text-sm"
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingCategoryId(null)
+                            setEditingCategoryName('')
+                          }}
+                          className="px-3 py-1.5 rounded-lg border hover:bg-gray-50 text-sm"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-800">{category.name}</span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              category.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >
+                            {category.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCategoryId(category.id)
+                              setEditingCategoryName(category.name)
+                            }}
+                            className="text-sm px-3 py-1.5 rounded-lg border hover:bg-gray-50"
+                          >
+                            Rename
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleCategory(category)}
+                            className="text-sm px-3 py-1.5 rounded-lg border hover:bg-gray-50"
+                          >
+                            {category.isActive ? 'Disable' : 'Enable'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCategory(category.id)}
+                            className="text-sm px-3 py-1.5 rounded-lg border border-red-200 text-red-700 hover:bg-red-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </motion.div>
 
