@@ -24,7 +24,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-yellow-100 max-w-3xl mx-auto leading-relaxed"
           >
             Connecting talent with opportunity through innovative technology and personalized service
           </motion.p>
@@ -58,7 +58,7 @@ export default function AboutPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="card bg-gradient-to-br from-primary-50 to-primary-100"
+              className="card bg-gradient-to-br from-primary-50 via-yellow-50/60 to-primary-100 border border-yellow-100"
             >
               <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-6 shadow-md">
                 <Building2 className="h-10 w-10 text-primary-600" />
@@ -74,7 +74,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="section bg-gray-50">
+      <section className="section bg-gradient-to-br from-gray-50 via-yellow-50/40 to-gray-100">
         <div className="container-custom">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -89,19 +89,19 @@ export default function AboutPage() {
                 icon: Users,
                 title: 'People First',
                 description: 'We prioritize the needs and aspirations of our users, ensuring every interaction adds value to their journey.',
-                color: 'from-blue-50 to-blue-100',
+                color: 'from-yellow-50 to-amber-100',
               },
               {
                 icon: Target,
                 title: 'Excellence',
                 description: 'We strive for excellence in everything we do, from platform design to customer service.',
-                color: 'from-green-50 to-green-100',
+                color: 'from-primary-50 to-yellow-100',
               },
               {
                 icon: Award,
                 title: 'Integrity',
                 description: 'We operate with transparency and honesty, building trust through consistent actions.',
-                color: 'from-purple-50 to-purple-100',
+                color: 'from-amber-50 to-yellow-100',
               },
             ].map((value, index) => (
               <motion.div
@@ -109,7 +109,7 @@ export default function AboutPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`card bg-gradient-to-br ${value.color} text-center`}
+                className={`card bg-gradient-to-br ${value.color} text-center border border-yellow-100`}
               >
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-4 shadow-md">
                   <value.icon className="h-8 w-8 text-primary-600" />
@@ -152,7 +152,7 @@ export default function AboutPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="card border-l-4 border-primary-600"
+                className="card border-l-4 border-yellow-500 bg-gradient-to-r from-white to-yellow-50/50"
               >
                 <div className="flex items-start space-x-4">
                   <CheckCircle className="h-6 w-6 text-primary-600 flex-shrink-0 mt-1" />

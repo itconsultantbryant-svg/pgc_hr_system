@@ -67,7 +67,7 @@ function StatCard({
   const inner = (
     <motion.div
       whileHover={{ y: -2 }}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-5"
+      className="bg-white rounded-2xl border border-yellow-100 shadow-sm hover:shadow-md transition-shadow p-5"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
@@ -75,7 +75,7 @@ function StatCard({
           <div className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">{value}</div>
           {trend ? <div className="mt-2 text-xs text-gray-500">{trend}</div> : null}
         </div>
-        <div className="w-11 h-11 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center shrink-0">
           <Icon className="h-5 w-5" />
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function AdminDashboardPage() {
     <AdminLayout>
       <div className="max-w-7xl mx-auto space-y-8">
         <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-sm">
             <Sparkles className="h-4 w-4" />
             Admin overview
           </div>
@@ -251,7 +251,7 @@ export default function AdminDashboardPage() {
                 type="button"
                 disabled={refreshing}
                 onClick={() => void loadDashboard(true)}
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-xl border border-yellow-200 bg-white px-3 py-2 font-medium text-gray-800 shadow-sm hover:bg-yellow-50 disabled:opacity-60"
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
@@ -277,7 +277,7 @@ export default function AdminDashboardPage() {
             ].map((m) => (
               <div
                 key={m.label}
-                className="rounded-2xl border border-gray-100 bg-white px-3 py-3 text-center shadow-sm sm:px-4"
+                className="rounded-2xl border border-yellow-100 bg-white px-3 py-3 text-center shadow-sm sm:px-4"
               >
                 <div className="text-xs font-medium uppercase tracking-wide text-gray-500">{m.label}</div>
                 <div className="mt-1 text-xl font-semibold tabular-nums text-gray-900">{m.value}</div>
@@ -303,16 +303,16 @@ export default function AdminDashboardPage() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+              className="lg:col-span-3 bg-white rounded-2xl border border-yellow-100 shadow-sm overflow-hidden"
             >
-              <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <div className="p-5 border-b border-yellow-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-primary-700" />
+                  <Activity className="h-5 w-5 text-yellow-700" />
                   <div className="font-semibold text-gray-900">Recent applications</div>
                 </div>
                 <Link
                   href="/dashboard/admin/applications"
-                  className="text-sm text-primary-700 hover:text-primary-800 inline-flex items-center gap-1"
+                  className="text-sm text-yellow-700 hover:text-yellow-800 inline-flex items-center gap-1"
                 >
                   View all <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -339,14 +339,14 @@ export default function AdminDashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+            className="lg:col-span-2 bg-white rounded-2xl border border-yellow-100 shadow-sm overflow-hidden"
           >
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-5 border-b border-yellow-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-primary-700" />
+                <CreditCard className="h-5 w-5 text-yellow-700" />
                 <div className="font-semibold text-gray-900">Pending payments</div>
               </div>
-              <Link href="/dashboard/admin/payments" className="text-sm text-primary-700 hover:text-primary-800 inline-flex items-center gap-1">
+              <Link href="/dashboard/admin/payments" className="text-sm text-yellow-700 hover:text-yellow-800 inline-flex items-center gap-1">
                 View all <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -376,44 +376,44 @@ export default function AdminDashboardPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4"
+            className="bg-white rounded-2xl border border-yellow-100 shadow-sm p-5 space-y-4"
           >
             <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary-700" />
+              <FileText className="h-5 w-5 text-yellow-700" />
               <div className="font-semibold text-gray-900">Quick actions</div>
             </div>
             <div className="space-y-2">
               <Link
                 href="/dashboard/admin/users"
-                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl border border-yellow-100 hover:border-yellow-200 hover:bg-yellow-50/60 transition-colors"
               >
                 <div className="text-sm font-medium text-gray-900">Review users</div>
                 <ArrowRight className="h-4 w-4 text-gray-400" />
               </Link>
               <Link
                 href="/dashboard/admin/jobs"
-                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl border border-yellow-100 hover:border-yellow-200 hover:bg-yellow-50/60 transition-colors"
               >
                 <div className="text-sm font-medium text-gray-900">All job posts</div>
                 <ArrowRight className="h-4 w-4 text-gray-400" />
               </Link>
               <Link
                 href="/dashboard/admin/applications"
-                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl border border-yellow-100 hover:border-yellow-200 hover:bg-yellow-50/60 transition-colors"
               >
                 <div className="text-sm font-medium text-gray-900">All applications</div>
                 <ArrowRight className="h-4 w-4 text-gray-400" />
               </Link>
               <Link
                 href="/dashboard/admin/payments"
-                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl border border-yellow-100 hover:border-yellow-200 hover:bg-yellow-50/60 transition-colors"
               >
                 <div className="text-sm font-medium text-gray-900">Approve payments</div>
                 <ArrowRight className="h-4 w-4 text-gray-400" />
               </Link>
               <Link
                 href="/dashboard/admin/content"
-                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl border border-yellow-100 hover:border-yellow-200 hover:bg-yellow-50/60 transition-colors"
               >
                 <div className="text-sm font-medium text-gray-900">Update content</div>
                 <ArrowRight className="h-4 w-4 text-gray-400" />

@@ -45,13 +45,13 @@ export default function LoginPage() {
 
   return (
     <Layout>
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-yellow-50/40 to-gray-100 dark:from-gray-900 dark:via-yellow-900/10 dark:to-gray-800">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-md w-full"
         >
-          <div className="card">
+          <div className="card border-yellow-100 dark:border-yellow-900/30">
             <div className="text-center mb-8">
               <motion.div
                 initial={{ scale: 0.9 }}
@@ -110,7 +110,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn btn-primary w-full justify-center"
+                className="btn w-full justify-center bg-yellow-500 text-gray-900 hover:bg-yellow-400"
               >
                 {loading ? (
                   <>

@@ -83,13 +83,13 @@ export default function RegisterPage() {
 
   return (
     <Layout>
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-yellow-50/40 to-gray-100 dark:from-gray-900 dark:via-yellow-900/10 dark:to-gray-800">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-2xl w-full"
         >
-          <div className="card">
+          <div className="card border-yellow-100 dark:border-yellow-900/30">
             <div className="text-center mb-8">
               <motion.div
                 initial={{ scale: 0.9 }}
@@ -125,16 +125,16 @@ export default function RegisterPage() {
                         onClick={() => setFormData({ ...formData, userType: type.type })}
                         className={`p-4 border-2 rounded-xl text-center transition-all hover:shadow-md ${
                           isSelected
-                            ? 'border-primary-600 bg-primary-50 shadow-md'
+                            ? 'border-yellow-500 bg-yellow-50 shadow-md'
                             : 'border-gray-300 hover:border-gray-400 bg-white'
                         }`}
                       >
                         <Icon
                           className={`h-6 w-6 mx-auto mb-2 ${
-                            isSelected ? 'text-primary-600' : 'text-gray-400'
+                            isSelected ? 'text-yellow-600' : 'text-gray-400'
                           }`}
                         />
-                        <div className={`text-sm font-semibold ${isSelected ? 'text-primary-600' : 'text-gray-700'}`}>
+                        <div className={`text-sm font-semibold ${isSelected ? 'text-yellow-700' : 'text-gray-700'}`}>
                           {type.label}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">{type.description}</div>
@@ -192,7 +192,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn btn-primary w-full justify-center"
+                className="btn w-full justify-center bg-yellow-500 text-gray-900 hover:bg-yellow-400"
               >
                 {loading ? (
                   <>
