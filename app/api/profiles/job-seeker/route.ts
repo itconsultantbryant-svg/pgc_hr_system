@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/prisma/client'
-import { mapJobSeekerProfileUrls } from '@/lib/profileMediaUrl'
+import { canonicalUploadRef, mapJobSeekerProfileUrls } from '@/lib/profileMediaUrl'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,9 +19,16 @@ const normalizeProfilePictures = (value: unknown): string[] => {
   if (!Array.isArray(value)) return []
   const unique = new Set<string>()
   for (const item of value) {
-    if (isPersistentImageUrl(item)) unique.add(item.trim())
+    if (!isPersistentImageUrl(item)) continue
+    const c = canonicalUploadRef(item as string)
+    if (c) unique.add(c)
   }
   return Array.from(unique).slice(0, 3)
+}
+
+const normalizeSinglePicture = (value: unknown): string | null => {
+  if (!isPersistentImageUrl(value)) return null
+  return canonicalUploadRef(value as string)
 }
 
 // GET - Get job seeker profile
@@ -88,7 +95,7 @@ export async function POST(request: Request) {
     })
 
     const normalizedProfilePicture = isPersistentImageUrl(profilePicture)
-      ? profilePicture.trim()
+      ? normalizeSinglePicture(profilePicture) ?? existingProfile?.profilePicture ?? null
       : existingProfile?.profilePicture || null
 
     const normalizedProfilePictures = Array.isArray(profilePictures)
@@ -124,7 +131,7 @@ export async function POST(request: Request) {
         availability,
         currentJobTitle,
         expectedSalary,
-        profilePicture: isPersistentImageUrl(profilePicture) ? profilePicture.trim() : null,
+        profilePicture: isPersistentImageUrl(profilePicture) ? normalizeSinglePicture(profilePicture) : null,
         profilePictures: normalizeProfilePictures(profilePictures),
       },
     })
@@ -218,7 +225,10 @@ export async function POST(request: Request) {
       },
     })
 
-    return NextResponse.json(updatedProfile, { status: 201 })
+    return NextResponse.json(
+      updatedProfile ? mapJobSeekerProfileUrls(updatedProfile as any) : updatedProfile,
+      { status: 201 }
+    )
   } catch (error: any) {
     console.error('Error creating/updating profile:', error)
     return NextResponse.json(
@@ -265,11 +275,12 @@ export async function PATCH(request: Request) {
     const profilePicture = body?.profilePicture
     const profilePictures = body?.profilePictures
 
-    const nextPicture = profilePicture === null
-      ? null
-      : isPersistentImageUrl(profilePicture)
-        ? profilePicture.trim()
-        : existingProfile.profilePicture
+    const nextPicture =
+      profilePicture === null
+        ? null
+        : isPersistentImageUrl(profilePicture)
+          ? normalizeSinglePicture(profilePicture) ?? existingProfile.profilePicture
+          : existingProfile.profilePicture
 
     const nextPictures = Array.isArray(profilePictures)
       ? normalizeProfilePictures(profilePictures)

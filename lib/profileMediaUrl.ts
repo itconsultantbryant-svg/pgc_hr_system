@@ -1,5 +1,25 @@
 import { getPublicAssetBaseUrl } from '@/lib/publicAssetBaseUrl'
 
+/**
+ * Collapse absolute upload URLs to a stable `/uploads/...` path for DB storage.
+ * Keeps non-upload absolute URLs (e.g. external CDNs) as-is.
+ */
+export function canonicalUploadRef(url: string | null | undefined): string | null {
+  if (url == null || typeof url !== 'string') return null
+  const t = url.trim()
+  if (!t || t.startsWith('blob:')) return null
+  const noQuery = t.split('?')[0]
+  if (noQuery.startsWith('/uploads/')) return noQuery
+  try {
+    const u = new URL(t)
+    if (u.pathname.startsWith('/uploads/')) return u.pathname
+  } catch {
+    /* not a full URL */
+  }
+  if (/^https?:\/\//i.test(t)) return t.trim()
+  return t.startsWith('/') ? noQuery : null
+}
+
 /** Client + server: turn stored paths into a browser-loadable URL. */
 export function resolveProfileMediaUrl(url: string | null | undefined): string {
   if (!url || typeof url !== 'string') return ''

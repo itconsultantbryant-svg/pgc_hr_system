@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import RoleDashboardLayout from '@/components/layout/RoleDashboardLayout'
 import { User, Upload, Plus, X, Briefcase, GraduationCap } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { resolveProfileMediaUrl } from '@/lib/profileMediaUrl'
+import { canonicalUploadRef, resolveProfileMediaUrl } from '@/lib/profileMediaUrl'
 
 interface ExperienceEntry {
   id?: string
@@ -87,10 +87,13 @@ export default function ProfilePage() {
       router.push('/auth/login')
     } else if (status === 'authenticated' && session?.user.userType !== 'JOB_SEEKER') {
       router.push('/dashboard')
-    } else if (status === 'authenticated') {
+    } else if (status === 'authenticated' && session?.user.userType === 'JOB_SEEKER') {
       fetchProfile()
     }
-  }, [status, session, router])
+    // Intentionally depend on stable session fields only — the full `session` object identity
+    // changes often and was refetching the profile after image uploads, wiping fresh UI state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, session?.user?.id, session?.user?.userType, router])
 
   useEffect(() => {
     fetchCategories()
@@ -105,6 +108,25 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error fetching categories:', error)
     }
+  }
+
+  const applyImageFieldsFromApi = (patch: {
+    profilePicture?: string | null
+    profilePictures?: string[]
+  }) => {
+    setProfile((prev) => ({
+      ...prev,
+      profilePicture:
+        patch.profilePicture !== undefined
+          ? patch.profilePicture &&
+              String(patch.profilePicture).trim() !== ''
+            ? resolveProfileMediaUrl(patch.profilePicture)
+            : ''
+          : prev.profilePicture,
+      profilePictures: Array.isArray(patch.profilePictures)
+        ? patch.profilePictures.map((u) => resolveProfileMediaUrl(u))
+        : prev.profilePictures,
+    }))
   }
 
   const fetchProfile = async () => {
@@ -124,8 +146,10 @@ export default function ProfilePage() {
             availability: data.availability || '',
             currentJobTitle: data.currentJobTitle || '',
             expectedSalary: data.expectedSalary || '',
-            profilePicture: data.profilePicture || '',
-            profilePictures: data.profilePictures || [],
+            profilePicture: resolveProfileMediaUrl(data.profilePicture || ''),
+            profilePictures: (data.profilePictures || []).map((u: string) =>
+              resolveProfileMediaUrl(u)
+            ),
             experiences: (data.experiences || []).map((e: any) => ({
               id: e.id,
               company: e.company || '',
@@ -205,12 +229,15 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json()
         const storedUrl = data.url || data.path
+        const dbRef = (data.path as string) || canonicalUploadRef(storedUrl) || storedUrl
         setProfile((prev) => ({ ...prev, profilePicture: resolveProfileMediaUrl(storedUrl) }))
         try {
-          await persistProfileImages({
-            profilePicture: storedUrl,
+          const patch = await persistProfileImages({
+            profilePicture: dbRef,
           })
-          await fetchProfile()
+          if (patch) {
+            applyImageFieldsFromApi(patch)
+          }
           toast.success('Profile picture uploaded successfully!')
         } catch {
           toast.error('Photo uploaded but profile was not updated. Click Save Profile or try again.')
@@ -225,7 +252,7 @@ export default function ProfilePage() {
       toast.error('An error occurred while uploading')
       await fetchProfile()
     } finally {
-      URL.revokeObjectURL(previewUrl)
+      queueMicrotask(() => URL.revokeObjectURL(previewUrl))
       setProfileImageUploading(false)
       e.target.value = ''
     }
@@ -260,11 +287,15 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json()
         const storedUrl = data.url || data.path
-        const existingWithoutPreview = profile.profilePictures.filter((url) => url !== previewUrl)
-        const nextForDb = [...existingWithoutPreview, storedUrl].slice(0, 3)
+        const dbRef = (data.path as string) || canonicalUploadRef(storedUrl) || storedUrl
 
+        let nextForDb: string[] = []
         setProfile((prev) => {
           const withoutPreview = prev.profilePictures.filter((url) => url !== previewUrl)
+          const refsForDb = withoutPreview
+            .map((u) => canonicalUploadRef(u))
+            .filter((u): u is string => !!u)
+          nextForDb = [...refsForDb, dbRef].slice(0, 3)
           const nextPictures = [...withoutPreview, resolveProfileMediaUrl(storedUrl)].slice(0, 3)
           return {
             ...prev,
@@ -273,10 +304,10 @@ export default function ProfilePage() {
         })
 
         try {
-          await persistProfileImages({
+          const patch = await persistProfileImages({
             profilePictures: nextForDb,
           })
-          await fetchProfile()
+          if (patch) applyImageFieldsFromApi(patch)
           toast.success('Additional profile picture uploaded!')
         } catch {
           toast.error('Photo uploaded but profile was not updated. Click Save Profile or try again.')
@@ -296,7 +327,7 @@ export default function ProfilePage() {
       }))
       toast.error('An error occurred while uploading')
     } finally {
-      URL.revokeObjectURL(previewUrl)
+      queueMicrotask(() => URL.revokeObjectURL(previewUrl))
       setExtraImageUploading(false)
       e.target.value = ''
     }
@@ -308,18 +339,25 @@ export default function ProfilePage() {
       ...profile,
       profilePictures: nextPictures,
     })
+    const refsForDb = nextPictures
+      .map((u) => canonicalUploadRef(u))
+      .filter((u): u is string => !!u)
     void persistProfileImages({
-      profilePictures: nextPictures,
-    }).catch(async () => {
-      toast.error('Failed to update stored images')
-      await fetchProfile()
+      profilePictures: refsForDb,
     })
+      .then((patch) => {
+        if (patch) applyImageFieldsFromApi(patch)
+      })
+      .catch(async () => {
+        toast.error('Failed to update stored images')
+        await fetchProfile()
+      })
   }
 
   const persistProfileImages = async (payload: {
     profilePicture?: string | null
     profilePictures?: string[]
-  }) => {
+  }): Promise<{ profilePicture?: string | null; profilePictures?: string[] } | null> => {
     const response = await fetch('/api/profiles/job-seeker', {
       method: 'PATCH',
       credentials: 'include',
@@ -330,6 +368,7 @@ export default function ProfilePage() {
       const data = await response.json().catch(() => ({}))
       throw new Error(data.error || 'Failed to persist profile images')
     }
+    return response.json()
   }
 
   if (loading || status === 'loading') {
