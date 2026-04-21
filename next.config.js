@@ -8,8 +8,22 @@ const nextConfig = {
     ]
   },
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, '')
-    if (!backendUrl) return []
+    const rawBackendUrl = process.env.BACKEND_URL?.trim()
+    if (!rawBackendUrl) return []
+
+    let backendUrl = ''
+    try {
+      const parsed = new URL(rawBackendUrl)
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        backendUrl = rawBackendUrl.replace(/\/$/, '')
+      } else {
+        console.warn('[next.config] BACKEND_URL must use http/https. Ignoring invalid value.')
+        return []
+      }
+    } catch {
+      console.warn('[next.config] BACKEND_URL is not a valid URL. Ignoring invalid value.')
+      return []
+    }
 
     return [
       // Forward API requests to Render backend when deploying frontend-only on Vercel.
