@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     return NextResponse.json(contents)
   } catch (error: any) {
     console.error('Error fetching public contents:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    // Keep frontend usable even when backend DB is temporarily unavailable.
+    return NextResponse.json([])
   }
 }

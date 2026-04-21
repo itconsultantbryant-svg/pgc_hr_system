@@ -172,6 +172,12 @@ export async function GET(request: Request) {
     })
   } catch (error: any) {
     console.error('Error in global search:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    // Return empty collections so homepage and talent page stay functional.
+    return NextResponse.json({
+      jobSeekers: [],
+      companies: [],
+      organizations: [],
+      jobs: [],
+    })
   }
 }
