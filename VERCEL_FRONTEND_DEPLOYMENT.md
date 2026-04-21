@@ -2,6 +2,13 @@
 
 Use this when your API/backend is already running on Render and you only want to deploy the frontend to Vercel.
 
+## 0) Architecture lock (recommended)
+
+- Keep backend deployed on Render only.
+- Keep frontend deployed on Vercel only.
+- Use Render backend URL as `BACKEND_URL` in Vercel.
+- Do not use `.env.example` as production source of truth; use `.env.vercel.example` and `.env.render.example`.
+
 ## 1) Set Vercel Environment Variables
 
 In Vercel Project Settings -> Environment Variables, add:
