@@ -203,6 +203,9 @@ export default function RegisterPage() {
                   <span>Create account</span>
                 )}
               </button>
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400 -mt-2">
+                Note: All services on this platform are subject to annual subscription charges.
+              </p>
 
               <p className="text-center text-sm text-gray-600 dark:text-gray-400">
                 Already have an account?{' '}

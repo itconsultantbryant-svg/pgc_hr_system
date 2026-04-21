@@ -28,6 +28,7 @@ export default function HomePage() {
   const [statsLoading, setStatsLoading] = useState(true)
   const [homepageContent, setHomepageContent] = useState<ContentItem[]>([])
   const [contentLoading, setContentLoading] = useState(true)
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([])
 
   useEffect(() => {
     fetchProfiles()
@@ -38,6 +39,10 @@ export default function HomePage() {
     fetchHomepageContent()
     const interval = setInterval(fetchHomepageContent, 20000)
     return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    fetchCategories()
   }, [])
 
   const fetchStats = async () => {
@@ -92,6 +97,17 @@ export default function HomePage() {
       console.error('Error fetching homepage content:', error)
     } finally {
       setContentLoading(false)
+    }
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories', { cache: 'no-store' })
+      if (!response.ok) return
+      const data = await response.json()
+      setCategories(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error('Error fetching categories:', error)
     }
   }
 
@@ -297,17 +313,20 @@ export default function HomePage() {
               <option value="hiring-entities">Hiring Entities</option>
               <option value="jobs">Jobs</option>
             </select>
-            <select
-              value={filters.category}
-              onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            >
-              <option value="">All Categories</option>
-              <option value="technology">Technology</option>
-              <option value="finance">Finance</option>
-              <option value="healthcare">Healthcare</option>
-              <option value="education">Education</option>
-            </select>
+            <div>
+              <input
+                list="home-categories"
+                value={filters.category}
+                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                placeholder="Filter by category"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              />
+              <datalist id="home-categories">
+                {categories.map((category) => (
+                  <option key={category.id} value={category.name} />
+                ))}
+              </datalist>
+            </div>
           </div>
         </div>
       </section>

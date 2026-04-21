@@ -18,8 +18,10 @@ interface TalentProfile {
 
 export default function TalentPage() {
   const [query, setQuery] = useState('')
+  const [category, setCategory] = useState('')
   const [loading, setLoading] = useState(true)
   const [talents, setTalents] = useState<TalentProfile[]>([])
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([])
 
   const fetchTalents = async () => {
     try {
@@ -27,6 +29,7 @@ export default function TalentPage() {
       const params = new URLSearchParams({
         type: 'talents',
         ...(query && { query }),
+        ...(category && { category }),
       })
       const response = await fetch(`/api/search?${params}`)
       if (response.ok) {
@@ -43,6 +46,21 @@ export default function TalentPage() {
   useEffect(() => {
     fetchTalents()
   }, [])
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories', { cache: 'no-store' })
+      if (!response.ok) return
+      const data = await response.json()
+      setCategories(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error('Failed to fetch categories:', error)
+    }
+  }
 
   return (
     <Layout>
@@ -66,6 +84,22 @@ export default function TalentPage() {
                   className="w-full pl-10"
                   aria-label="Search talents"
                 />
+              </div>
+              <div className="md:w-72">
+                <input
+                  list="talent-categories"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && fetchTalents()}
+                  placeholder="Filter by category"
+                  className="w-full"
+                  aria-label="Filter talents by category"
+                />
+                <datalist id="talent-categories">
+                  {categories.map((item) => (
+                    <option key={item.id} value={item.name} />
+                  ))}
+                </datalist>
               </div>
               <button
                 type="button"

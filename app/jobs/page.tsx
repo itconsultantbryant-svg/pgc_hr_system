@@ -38,6 +38,24 @@ interface ContentItem {
   updatedAt: string
 }
 
+const LIBERIA_COUNTIES = [
+  'Bomi',
+  'Bong',
+  'Gbarpolu',
+  'Grand Bassa',
+  'Grand Cape Mount',
+  'Grand Gedeh',
+  'Grand Kru',
+  'Lofa',
+  'Margibi',
+  'Maryland',
+  'Montserrado',
+  'Nimba',
+  'River Cess',
+  'River Gee',
+  'Sinoe',
+]
+
 export default function JobsPage() {
   const { data: session } = useSession()
   const [jobs, setJobs] = useState<JobPost[]>([])
@@ -135,11 +153,17 @@ export default function JobsPage() {
               <div>
                 <input
                   type="text"
-                  placeholder="Location"
+                  placeholder="County"
                   value={filters.location}
                   onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                  list="liberia-counties"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
+                <datalist id="liberia-counties">
+                  {LIBERIA_COUNTIES.map((county) => (
+                    <option key={county} value={county} />
+                  ))}
+                </datalist>
               </div>
               <div>
                 <select
