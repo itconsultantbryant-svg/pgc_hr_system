@@ -8,6 +8,7 @@ In Vercel Project Settings -> Environment Variables, add:
 
 - `BACKEND_URL` = your Render backend base URL (no trailing slash)
   - Example: `https://your-backend.onrender.com`
+  - Never use a database URL (`postgresql://...`) here.
 - `NEXTAUTH_URL` = your Vercel frontend URL
   - Example: `https://your-frontend.vercel.app`
 - `NEXTAUTH_SECRET` = same secret used by auth backend
@@ -50,3 +51,20 @@ Your Render backend must:
 - Login/logout flow works
 - Open profile pages and ensure images under `/uploads/...` load
 - Create/update profile and confirm new images remain visible after refresh
+
+## 6) Common 502 fix (DNS_HOSTNAME_NOT_FOUND)
+
+If Vercel shows `502` with `DNS_HOSTNAME_NOT_FOUND`, your `BACKEND_URL` is usually invalid.
+
+Checklist:
+
+- `BACKEND_URL` starts with `https://`
+- Value is your Render **web service URL** (not postgres host, not DB URL)
+- No extra protocol fragments like `https://postgresql://...`
+- No trailing slash needed
+
+After correcting env vars:
+
+1. Trigger a new Vercel redeploy
+2. Open `/health`
+3. Run API check

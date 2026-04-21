@@ -10,11 +10,19 @@ const nextConfig = {
   async rewrites() {
     const rawBackendUrl = process.env.BACKEND_URL?.trim()
     if (!rawBackendUrl) return []
+    if (rawBackendUrl.includes('postgresql://') || rawBackendUrl.includes('postgres://')) {
+      console.warn('[next.config] BACKEND_URL cannot be a database URL. Ignoring invalid value.')
+      return []
+    }
 
     let backendUrl = ''
     try {
       const parsed = new URL(rawBackendUrl)
       if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        if (!parsed.hostname || parsed.hostname === 'postgresql' || parsed.hostname === 'postgres') {
+          console.warn('[next.config] BACKEND_URL hostname is invalid. Ignoring invalid value.')
+          return []
+        }
         backendUrl = rawBackendUrl.replace(/\/$/, '')
       } else {
         console.warn('[next.config] BACKEND_URL must use http/https. Ignoring invalid value.')
