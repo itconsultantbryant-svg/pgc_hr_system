@@ -48,6 +48,32 @@ export default function HealthPage() {
     }
   }
 
+  const runDeepCheck = async () => {
+    setChecking(true)
+    setResult(null)
+
+    try {
+      const response = await fetch('/api/diag', { cache: 'no-store' })
+      const payload = await response.json().catch(() => null)
+      setResult({
+        ok: response.ok,
+        status: response.status,
+        message: response.ok
+          ? 'Backend diagnostics passed.'
+          : 'Backend diagnostics failed. Check payload for exact reason.',
+        payload,
+      })
+    } catch (error: any) {
+      setResult({
+        ok: false,
+        status: 0,
+        message: error?.message || 'Diagnostics request failed.',
+      })
+    } finally {
+      setChecking(false)
+    }
+  }
+
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
@@ -58,7 +84,7 @@ export default function HealthPage() {
               Use this page after Vercel deployment to confirm the frontend can reach the backend through proxy rewrites.
             </p>
 
-            <div className="mt-6">
+            <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={runCheck}
@@ -66,6 +92,14 @@ export default function HealthPage() {
                 className="px-5 py-2.5 rounded-lg bg-yellow-500 text-gray-900 font-semibold hover:bg-yellow-400 disabled:opacity-60"
               >
                 {checking ? 'Checking...' : 'Run API Check'}
+              </button>
+              <button
+                type="button"
+                onClick={runDeepCheck}
+                disabled={checking}
+                className="px-5 py-2.5 rounded-lg border border-yellow-300 text-yellow-800 font-semibold hover:bg-yellow-50 disabled:opacity-60"
+              >
+                {checking ? 'Checking...' : 'Run Deep Check'}
               </button>
             </div>
 

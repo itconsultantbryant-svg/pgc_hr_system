@@ -103,14 +103,14 @@ export async function GET() {
     console.error('Error fetching statistics:', error)
     return NextResponse.json(
       { 
-        error: 'Internal server error',
-        // Return default values on error
+        // Return default values on error (200) so frontend does not hard-fail.
         jobSeekers: 0,
         companies: 0,
         jobOpenings: 0,
         successRate: 0,
+        totalApplications: 0,
+        acceptedApplications: 0,
       },
-      { status: 500 }
     )
   }
 }

@@ -44,6 +44,12 @@ export async function POST(request: Request) {
     )
   } catch (error: any) {
     console.error('Registration error:', error)
+    if (String(error?.message || '').toLowerCase().includes("can't reach database")) {
+      return NextResponse.json(
+        { error: 'Registration service is temporarily unavailable. Database connection failed.' },
+        { status: 503 }
+      )
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

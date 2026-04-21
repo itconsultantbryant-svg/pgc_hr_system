@@ -8,6 +8,11 @@ const nextConfig = {
     ]
   },
   async rewrites() {
+    // Rewrites are only for frontend-only deployments (e.g. Vercel -> Render backend).
+    // Do not enable on backend service deployments.
+    const frontendOnly = process.env.FRONTEND_ONLY === 'true'
+    if (!frontendOnly) return []
+
     const rawBackendUrl = process.env.BACKEND_URL?.trim()
     if (!rawBackendUrl) return []
     if (rawBackendUrl.includes('postgresql://') || rawBackendUrl.includes('postgres://')) {

@@ -13,38 +13,45 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password required')
-        }
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error('Email and password required')
+          }
 
-        const email = credentials.email.trim().toLowerCase()
+          const email = credentials.email.trim().toLowerCase()
 
-        const user = await prisma.user.findFirst({
-          where: { email: { equals: email, mode: 'insensitive' } },
-        })
+          const user = await prisma.user.findFirst({
+            where: { email: { equals: email, mode: 'insensitive' } },
+          })
 
-        if (!user) {
-          throw new Error('Invalid email or password')
-        }
+          if (!user) {
+            throw new Error('Invalid email or password')
+          }
 
-        if (!user.isActive) {
-          throw new Error('Account is not active. Please contact support.')
-        }
+          if (!user.isActive) {
+            throw new Error('Account is not active. Please contact support.')
+          }
 
-        if (user.isSuspended) {
-          throw new Error('Account is suspended. Please contact support.')
-        }
+          if (user.isSuspended) {
+            throw new Error('Account is suspended. Please contact support.')
+          }
 
-        const isValid = await bcrypt.compare(credentials.password, user.password)
+          const isValid = await bcrypt.compare(credentials.password, user.password)
 
-        if (!isValid) {
-          throw new Error('Invalid email or password')
-        }
+          if (!isValid) {
+            throw new Error('Invalid email or password')
+          }
 
-        return {
-          id: user.id,
-          email: user.email,
-          userType: user.userType,
+          return {
+            id: user.id,
+            email: user.email,
+            userType: user.userType,
+          }
+        } catch (error: any) {
+          if (String(error?.message || '').toLowerCase().includes("can't reach database")) {
+            throw new Error('Authentication service is temporarily unavailable. Try again shortly.')
+          }
+          throw error
         }
       }
     })
