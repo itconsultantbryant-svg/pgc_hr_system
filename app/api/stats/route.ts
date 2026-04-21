@@ -1,9 +1,24 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/prisma/client'
 
+export const dynamic = 'force-dynamic'
+
 // GET - Get platform statistics
 export async function GET() {
   try {
+    // Frontend-only deployments (e.g. Vercel with backend on Render) may not provide DATABASE_URL.
+    // Return safe defaults instead of throwing runtime errors.
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({
+        jobSeekers: 0,
+        companies: 0,
+        jobOpenings: 0,
+        successRate: 0,
+        totalApplications: 0,
+        acceptedApplications: 0,
+      })
+    }
+
     // Count active job seekers (with active subscriptions)
     const activeJobSeekers = await prisma.jobSeekerProfile.count({
       where: {
