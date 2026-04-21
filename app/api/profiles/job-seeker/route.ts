@@ -5,6 +5,23 @@ import { prisma } from '@/prisma/client'
 
 export const dynamic = 'force-dynamic'
 
+const isPersistentImageUrl = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false
+  const trimmed = value.trim()
+  if (!trimmed) return false
+  if (trimmed.startsWith('blob:')) return false
+  return trimmed.startsWith('/uploads/profiles/') || /^https?:\/\//i.test(trimmed)
+}
+
+const normalizeProfilePictures = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return []
+  const unique = new Set<string>()
+  for (const item of value) {
+    if (isPersistentImageUrl(item)) unique.add(item.trim())
+  }
+  return Array.from(unique).slice(0, 3)
+}
+
 // GET - Get job seeker profile
 export async function GET(request: Request) {
   try {
@@ -63,6 +80,19 @@ export async function POST(request: Request) {
       languages,
     } = body
 
+    const existingProfile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { profilePicture: true, profilePictures: true },
+    })
+
+    const normalizedProfilePicture = isPersistentImageUrl(profilePicture)
+      ? profilePicture.trim()
+      : existingProfile?.profilePicture || null
+
+    const normalizedProfilePictures = Array.isArray(profilePictures)
+      ? normalizeProfilePictures(profilePictures)
+      : existingProfile?.profilePictures || []
+
     // Upsert profile
     const profile = await prisma.jobSeekerProfile.upsert({
       where: { userId: session.user.id },
@@ -77,8 +107,8 @@ export async function POST(request: Request) {
         availability,
         currentJobTitle,
         expectedSalary,
-        profilePicture,
-        profilePictures: Array.isArray(profilePictures) ? profilePictures.slice(0, 3) : [],
+        profilePicture: normalizedProfilePicture,
+        profilePictures: normalizedProfilePictures,
       },
       create: {
         userId: session.user.id,
@@ -92,8 +122,8 @@ export async function POST(request: Request) {
         availability,
         currentJobTitle,
         expectedSalary,
-        profilePicture,
-        profilePictures: Array.isArray(profilePictures) ? profilePictures.slice(0, 3) : [],
+        profilePicture: isPersistentImageUrl(profilePicture) ? profilePicture.trim() : null,
+        profilePictures: normalizeProfilePictures(profilePictures),
       },
     })
 
@@ -193,5 +223,55 @@ export async function POST(request: Request) {
       { error: 'Internal server error' },
       { status: 500 }
     )
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session || session.user.userType !== 'JOB_SEEKER') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const existingProfile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true, profilePicture: true, profilePictures: true },
+    })
+
+    if (!existingProfile) {
+      return NextResponse.json({ error: 'Create your profile first before uploading images' }, { status: 400 })
+    }
+
+    const profilePicture = body?.profilePicture
+    const profilePictures = body?.profilePictures
+
+    const nextPicture = profilePicture === null
+      ? null
+      : isPersistentImageUrl(profilePicture)
+        ? profilePicture.trim()
+        : existingProfile.profilePicture
+
+    const nextPictures = Array.isArray(profilePictures)
+      ? normalizeProfilePictures(profilePictures)
+      : existingProfile.profilePictures
+
+    const updated = await prisma.jobSeekerProfile.update({
+      where: { id: existingProfile.id },
+      data: {
+        profilePicture: nextPicture,
+        profilePictures: nextPictures,
+      },
+      select: {
+        id: true,
+        profilePicture: true,
+        profilePictures: true,
+      },
+    })
+
+    return NextResponse.json(updated)
+  } catch (error: any) {
+    console.error('Error updating profile images:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

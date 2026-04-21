@@ -202,6 +202,9 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json()
         setProfile((prev) => ({ ...prev, profilePicture: data.url }))
+        await persistProfileImages({
+          profilePicture: data.url,
+        })
         toast.success('Profile picture uploaded successfully!')
       } else {
         toast.error('Failed to upload profile picture')
@@ -244,12 +247,17 @@ export default function ProfilePage() {
 
       if (response.ok) {
         const data = await response.json()
+        let nextPictures: string[] = []
         setProfile((prev) => {
           const withoutPreview = prev.profilePictures.filter((url) => url !== previewUrl)
+          nextPictures = [...withoutPreview, data.url].slice(0, 3)
           return {
             ...prev,
-            profilePictures: [...withoutPreview, data.url].slice(0, 3),
+            profilePictures: nextPictures,
           }
+        })
+        await persistProfileImages({
+          profilePictures: nextPictures,
         })
         toast.success('Additional profile picture uploaded!')
       } else {
@@ -273,10 +281,32 @@ export default function ProfilePage() {
   }
 
   const removeAdditionalPhoto = (index: number) => {
+    const nextPictures = profile.profilePictures.filter((_, i) => i !== index)
     setProfile({
       ...profile,
-      profilePictures: profile.profilePictures.filter((_, i) => i !== index),
+      profilePictures: nextPictures,
     })
+    void persistProfileImages({
+      profilePictures: nextPictures,
+    }).catch(async () => {
+      toast.error('Failed to update stored images')
+      await fetchProfile()
+    })
+  }
+
+  const persistProfileImages = async (payload: {
+    profilePicture?: string | null
+    profilePictures?: string[]
+  }) => {
+    const response = await fetch('/api/profiles/job-seeker', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.error || 'Failed to persist profile images')
+    }
   }
 
   if (loading || status === 'loading') {
