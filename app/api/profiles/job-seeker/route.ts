@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/prisma/client'
+import { mapJobSeekerProfileUrls } from '@/lib/profileMediaUrl'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,7 +11,8 @@ const isPersistentImageUrl = (value: unknown): value is string => {
   const trimmed = value.trim()
   if (!trimmed) return false
   if (trimmed.startsWith('blob:')) return false
-  return trimmed.startsWith('/uploads/profiles/') || /^https?:\/\//i.test(trimmed)
+  if (/^https?:\/\//i.test(trimmed)) return true
+  return trimmed.startsWith('/uploads/')
 }
 
 const normalizeProfilePictures = (value: unknown): string[] => {
@@ -41,7 +43,7 @@ export async function GET(request: Request) {
       },
     })
 
-    return NextResponse.json(profile)
+    return NextResponse.json(profile ? mapJobSeekerProfileUrls(profile as any) : profile)
   } catch (error: any) {
     console.error('Error fetching profile:', error)
     return NextResponse.json(
@@ -234,13 +236,30 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json()
-    const existingProfile = await prisma.jobSeekerProfile.findUnique({
+    let existingProfile = await prisma.jobSeekerProfile.findUnique({
       where: { userId: session.user.id },
       select: { id: true, profilePicture: true, profilePictures: true },
     })
 
     if (!existingProfile) {
-      return NextResponse.json({ error: 'Create your profile first before uploading images' }, { status: 400 })
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { email: true },
+      })
+      const handle = user?.email?.split('@')[0]?.replace(/[^a-zA-Z0-9._-]/g, '') || 'member'
+      const pretty =
+        handle.length > 0 ? handle.charAt(0).toUpperCase() + handle.slice(1) : 'Member'
+
+      existingProfile = await prisma.jobSeekerProfile.create({
+        data: {
+          userId: session.user.id,
+          firstName: pretty,
+          lastName: 'Profile',
+          profilePicture: null,
+          profilePictures: [],
+        },
+        select: { id: true, profilePicture: true, profilePictures: true },
+      })
     }
 
     const profilePicture = body?.profilePicture
@@ -269,7 +288,7 @@ export async function PATCH(request: Request) {
       },
     })
 
-    return NextResponse.json(updated)
+    return NextResponse.json(mapJobSeekerProfileUrls(updated as any))
   } catch (error: any) {
     console.error('Error updating profile images:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

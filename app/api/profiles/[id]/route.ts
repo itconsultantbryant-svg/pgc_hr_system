@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/prisma/client'
+import { mapJobSeekerProfileUrls } from '@/lib/profileMediaUrl'
 
 // GET - Get public profile by ID (for profile detail page)
 export async function GET(
@@ -38,12 +39,13 @@ export async function GET(
 
     if (jobSeekerProfile && jobSeekerProfile.isVisible) {
       const { user, experiences, educations, competencies, references, languages, ...rest } = jobSeekerProfile
+      const mediaRest = mapJobSeekerProfileUrls(rest)
       // Direct package = ACTIVE subscription with type DIRECT and at least one APPROVED payment
       const hasDirectPackage = user.subscriptions.some(
         (sub) => sub.type === 'DIRECT' && sub.payments && sub.payments.length > 0
       )
       const profileData: Record<string, unknown> = {
-        ...rest,
+        ...mediaRest,
         type: 'job-seeker',
         hasDirectPackage,
         user: {

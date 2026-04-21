@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/prisma/client'
+import { mapJobSeekerProfileUrls } from '@/lib/profileMediaUrl'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,7 +67,16 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
     })
 
-    return NextResponse.json(applications)
+    const mapped = applications.map((app) => ({
+      ...app,
+      user: {
+        ...app.user,
+        jobSeekerProfile: app.user.jobSeekerProfile
+          ? mapJobSeekerProfileUrls(app.user.jobSeekerProfile as any)
+          : app.user.jobSeekerProfile,
+      },
+    }))
+    return NextResponse.json(mapped)
   } catch (error: any) {
     console.error('Error fetching applications:', error)
     return NextResponse.json(

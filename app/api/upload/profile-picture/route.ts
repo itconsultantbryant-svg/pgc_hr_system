@@ -4,14 +4,26 @@ import { authOptions } from '@/lib/auth'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { getPublicAssetBaseUrl } from '@/lib/publicAssetBaseUrl'
 
 export const dynamic = 'force-dynamic'
+
+function getProfilesUploadDir() {
+  const customRoot = process.env.UPLOAD_DIR?.trim()
+  if (customRoot) {
+    return join(customRoot, 'profiles')
+  }
+  return join(process.cwd(), 'public', 'uploads', 'profiles')
+}
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'Unauthorized. Sign in again and retry your upload.' },
+        { status: 401 }
+      )
     }
 
     const formData = await request.formData()
@@ -34,23 +46,23 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'profiles')
+    const uploadsDir = getProfilesUploadDir()
     if (!existsSync(uploadsDir)) {
       await mkdir(uploadsDir, { recursive: true })
     }
 
-    // Generate unique filename
+    const ext = (file.name.split('.').pop() || 'jpg').replace(/[^a-zA-Z0-9]/g, '') || 'jpg'
     const timestamp = Date.now()
-    const filename = `${session.user.id}-${timestamp}.${file.name.split('.').pop()}`
+    const filename = `${session.user.id}-${timestamp}.${ext}`
     const filepath = join(uploadsDir, filename)
 
     await writeFile(filepath, buffer)
 
-    // Return the URL path
-    const url = `/uploads/profiles/${filename}`
+    const relativePath = `/uploads/profiles/${filename}`
+    const base = getPublicAssetBaseUrl()
+    const url = base ? `${base}${relativePath}` : relativePath
 
-    return NextResponse.json({ url })
+    return NextResponse.json({ url, path: relativePath })
   } catch (error: any) {
     console.error('Error uploading file:', error)
     return NextResponse.json(

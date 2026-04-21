@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import RoleDashboardLayout from '@/components/layout/RoleDashboardLayout'
 import { User, Upload, Plus, X, Briefcase, GraduationCap } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { resolveProfileMediaUrl } from '@/lib/profileMediaUrl'
 
 interface ExperienceEntry {
   id?: string
@@ -164,6 +165,7 @@ export default function ProfilePage() {
     try {
       const response = await fetch('/api/profiles/job-seeker', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profile),
       })
@@ -196,18 +198,27 @@ export default function ProfilePage() {
     try {
       const response = await fetch('/api/upload/profile-picture', {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       })
 
       if (response.ok) {
         const data = await response.json()
-        setProfile((prev) => ({ ...prev, profilePicture: data.url }))
-        await persistProfileImages({
-          profilePicture: data.url,
-        })
-        toast.success('Profile picture uploaded successfully!')
+        const storedUrl = data.url || data.path
+        setProfile((prev) => ({ ...prev, profilePicture: resolveProfileMediaUrl(storedUrl) }))
+        try {
+          await persistProfileImages({
+            profilePicture: storedUrl,
+          })
+          await fetchProfile()
+          toast.success('Profile picture uploaded successfully!')
+        } catch {
+          toast.error('Photo uploaded but profile was not updated. Click Save Profile or try again.')
+          await fetchProfile()
+        }
       } else {
-        toast.error('Failed to upload profile picture')
+        const errJson = await response.json().catch(() => ({}))
+        toast.error(errJson.error || 'Failed to upload profile picture')
         await fetchProfile()
       }
     } catch (error) {
@@ -242,24 +253,35 @@ export default function ProfilePage() {
     try {
       const response = await fetch('/api/upload/profile-picture', {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       })
 
       if (response.ok) {
         const data = await response.json()
-        let nextPictures: string[] = []
+        const storedUrl = data.url || data.path
+        const existingWithoutPreview = profile.profilePictures.filter((url) => url !== previewUrl)
+        const nextForDb = [...existingWithoutPreview, storedUrl].slice(0, 3)
+
         setProfile((prev) => {
           const withoutPreview = prev.profilePictures.filter((url) => url !== previewUrl)
-          nextPictures = [...withoutPreview, data.url].slice(0, 3)
+          const nextPictures = [...withoutPreview, resolveProfileMediaUrl(storedUrl)].slice(0, 3)
           return {
             ...prev,
             profilePictures: nextPictures,
           }
         })
-        await persistProfileImages({
-          profilePictures: nextPictures,
-        })
-        toast.success('Additional profile picture uploaded!')
+
+        try {
+          await persistProfileImages({
+            profilePictures: nextForDb,
+          })
+          await fetchProfile()
+          toast.success('Additional profile picture uploaded!')
+        } catch {
+          toast.error('Photo uploaded but profile was not updated. Click Save Profile or try again.')
+          await fetchProfile()
+        }
       } else {
         setProfile((prev) => ({
           ...prev,
@@ -300,6 +322,7 @@ export default function ProfilePage() {
   }) => {
     const response = await fetch('/api/profiles/job-seeker', {
       method: 'PATCH',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })

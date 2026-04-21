@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/prisma/client'
+import { mapJobSeekerProfileUrls } from '@/lib/profileMediaUrl'
 
 export const dynamic = 'force-dynamic'
 
@@ -165,7 +166,7 @@ export async function GET(request: Request) {
     ])
 
     return NextResponse.json({
-      jobSeekers,
+      jobSeekers: jobSeekers.map((row) => mapJobSeekerProfileUrls(row)),
       companies,
       organizations,
       jobs,
