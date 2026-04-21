@@ -7,6 +7,17 @@ const nextConfig = {
       { source: '/favicon.ico', destination: '/libstaffconnect-logo.png', permanent: true },
     ]
   },
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, '')
+    if (!backendUrl) return []
+
+    return [
+      // Forward API requests to Render backend when deploying frontend-only on Vercel.
+      { source: '/api/:path*', destination: `${backendUrl}/api/:path*` },
+      // Serve uploaded profile images from backend persistent storage.
+      { source: '/uploads/:path*', destination: `${backendUrl}/uploads/:path*` },
+    ]
+  },
   images: {
     domains: ['localhost'],
     remotePatterns: [
