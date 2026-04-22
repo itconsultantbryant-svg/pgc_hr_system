@@ -29,6 +29,12 @@ export async function GET() {
           subscriptions: {
             some: {
               status: 'ACTIVE',
+              type: { in: ['DIRECT', 'INDIRECT'] },
+              payments: {
+                some: {
+                  status: 'APPROVED',
+                },
+              },
             },
           },
         },
@@ -45,6 +51,12 @@ export async function GET() {
           subscriptions: {
             some: {
               status: 'ACTIVE',
+              type: { in: ['DIRECT', 'INDIRECT'] },
+              payments: {
+                some: {
+                  status: 'APPROVED',
+                },
+              },
             },
           },
         },
@@ -61,6 +73,12 @@ export async function GET() {
           subscriptions: {
             some: {
               status: 'ACTIVE',
+              type: { in: ['DIRECT', 'INDIRECT'] },
+              payments: {
+                some: {
+                  status: 'APPROVED',
+                },
+              },
             },
           },
         },

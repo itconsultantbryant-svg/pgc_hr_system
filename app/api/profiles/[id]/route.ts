@@ -119,6 +119,19 @@ export async function GET(
     })
 
     if (organizationProfile && organizationProfile.isVisible) {
+      const hasApprovedActiveSubscription = await prisma.subscription.findFirst({
+        where: {
+          userId: organizationProfile.userId,
+          status: 'ACTIVE',
+          payments: {
+            some: { status: 'APPROVED' },
+          },
+        },
+        select: { id: true },
+      })
+      if (!hasApprovedActiveSubscription) {
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      }
       const { ...profileData } = organizationProfile
       return NextResponse.json({
         ...profileData,

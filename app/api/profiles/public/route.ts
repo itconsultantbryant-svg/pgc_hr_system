@@ -35,6 +35,9 @@ export async function GET(request: Request) {
           subscriptions: {
             some: {
               status: 'ACTIVE',
+              payments: {
+                some: { status: 'APPROVED' },
+              },
             },
           },
         },
@@ -171,6 +174,9 @@ export async function GET(request: Request) {
           subscriptions: {
             some: {
               status: 'ACTIVE',
+              payments: {
+                some: { status: 'APPROVED' },
+              },
             },
           },
         },

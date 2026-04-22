@@ -16,6 +16,7 @@ import {
   Building2,
   Landmark,
 } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 type AdminUserDetail = {
   id: string
@@ -43,6 +44,7 @@ export default function AdminUserDetailPage() {
   const [user, setUser] = useState<AdminUserDetail | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [resettingPassword, setResettingPassword] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/login')
@@ -112,6 +114,40 @@ export default function AdminUserDetailPage() {
     user.organizationProfile?.organizationName ||
     'No profile title'
 
+  const handleAdminPasswordReset = async () => {
+    if (!user) return
+    const proceed = window.confirm(
+      `Reset password for ${user.email}? A temporary password will be generated.`
+    )
+    if (!proceed) return
+
+    try {
+      setResettingPassword(true)
+      const res = await fetch(`/api/admin/users/${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resetPassword: true }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to reset password')
+      }
+
+      const temp = data.temporaryPassword as string | undefined
+      if (temp) {
+        window.prompt(
+          'Temporary password generated. Copy and share securely with the user:',
+          temp
+        )
+      }
+      toast.success('Password reset completed')
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to reset password')
+    } finally {
+      setResettingPassword(false)
+    }
+  }
+
   return (
     <AdminLayout>
       <div className="mx-auto max-w-5xl space-y-8">
@@ -142,6 +178,16 @@ export default function AdminUserDetailPage() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">{user.email}</h1>
           <p className="text-gray-600">{profileLabel}</p>
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={handleAdminPasswordReset}
+              disabled={resettingPassword}
+              className="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-yellow-400 disabled:opacity-60"
+            >
+              {resettingPassword ? 'Resetting password...' : 'Reset user password'}
+            </button>
+          </div>
         </motion.div>
 
         <div className="grid gap-4 md:grid-cols-2">

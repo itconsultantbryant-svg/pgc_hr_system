@@ -412,6 +412,13 @@ export default function AdminDashboardPage() {
                 <ArrowRight className="h-4 w-4 text-gray-400" />
               </Link>
               <Link
+                href="/dashboard/admin/activity-logs"
+                className="flex items-center justify-between p-3 rounded-xl border border-yellow-100 hover:border-yellow-200 hover:bg-yellow-50/60 transition-colors"
+              >
+                <div className="text-sm font-medium text-gray-900">View activity logs</div>
+                <ArrowRight className="h-4 w-4 text-gray-400" />
+              </Link>
+              <Link
                 href="/dashboard/admin/content"
                 className="flex items-center justify-between p-3 rounded-xl border border-yellow-100 hover:border-yellow-200 hover:bg-yellow-50/60 transition-colors"
               >

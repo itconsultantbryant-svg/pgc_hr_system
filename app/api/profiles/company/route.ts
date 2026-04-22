@@ -67,6 +67,17 @@ export async function POST(request: Request) {
       )
     }
 
+    const hasApprovedActiveSubscription = await prisma.subscription.findFirst({
+      where: {
+        userId: session.user.id,
+        status: 'ACTIVE',
+        payments: {
+          some: { status: 'APPROVED' },
+        },
+      },
+      select: { id: true },
+    })
+
     const profile = await prisma.companyProfile.upsert({
       where: { userId: session.user.id },
       update: {
@@ -89,6 +100,7 @@ export async function POST(request: Request) {
         revenueGenerated,
         contractCompletionAbility,
         otherDetails,
+        isVisible: !!hasApprovedActiveSubscription,
       },
       create: {
         userId: session.user.id,
@@ -111,6 +123,7 @@ export async function POST(request: Request) {
         revenueGenerated,
         contractCompletionAbility,
         otherDetails,
+        isVisible: !!hasApprovedActiveSubscription,
       },
     })
 

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/prisma/client'
+import bcrypt from 'bcryptjs'
+import { randomBytes } from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,13 +66,60 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const { isActive, isSuspended } = body
+    const { isActive, isSuspended, resetPassword, newPassword } = body
+
+    if (resetPassword === true || typeof newPassword === 'string') {
+      const tempPassword =
+        typeof newPassword === 'string' && newPassword.trim().length >= 6
+          ? newPassword.trim()
+          : randomBytes(6).toString('base64url')
+      const hashedPassword = await bcrypt.hash(tempPassword, 10)
+
+      await prisma.user.update({
+        where: { id: params.id },
+        data: {
+          password: hashedPassword,
+        },
+      })
+      await prisma.activityLog.create({
+        data: {
+          userId: session.user.id,
+          action: 'ADMIN_PASSWORD_RESET',
+          entityType: 'User',
+          entityId: params.id,
+          details: JSON.stringify({
+            resetType:
+              typeof newPassword === 'string' && newPassword.trim().length >= 6
+                ? 'MANUAL_PASSWORD'
+                : 'TEMP_PASSWORD',
+          }),
+        },
+      })
+
+      return NextResponse.json({
+        message: 'Password reset successfully',
+        temporaryPassword: tempPassword,
+      })
+    }
 
     const user = await prisma.user.update({
       where: { id: params.id },
       data: {
         ...(isActive !== undefined && { isActive }),
         ...(isSuspended !== undefined && { isSuspended }),
+      },
+    })
+
+    await prisma.activityLog.create({
+      data: {
+        userId: session.user.id,
+        action: 'ADMIN_USER_STATUS_UPDATE',
+        entityType: 'User',
+        entityId: params.id,
+        details: JSON.stringify({
+          isActive: isActive ?? null,
+          isSuspended: isSuspended ?? null,
+        }),
       },
     })
 

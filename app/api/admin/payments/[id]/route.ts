@@ -5,6 +5,35 @@ import { prisma } from '@/prisma/client'
 
 export const dynamic = 'force-dynamic'
 
+async function setProfileVisibilityByApproval(userId: string) {
+  const hasApprovedActiveSubscription = await prisma.subscription.findFirst({
+    where: {
+      userId,
+      status: 'ACTIVE',
+      payments: {
+        some: {
+          status: 'APPROVED',
+        },
+      },
+    },
+    select: { id: true },
+  })
+
+  const nextVisibility = !!hasApprovedActiveSubscription
+  await prisma.jobSeekerProfile.updateMany({
+    where: { userId },
+    data: { isVisible: nextVisibility },
+  })
+  await prisma.companyProfile.updateMany({
+    where: { userId },
+    data: { isVisible: nextVisibility },
+  })
+  await prisma.organizationProfile.updateMany({
+    where: { userId },
+    data: { isVisible: nextVisibility },
+  })
+}
+
 // PATCH - Approve or reject payment
 export async function PATCH(
   request: Request,
@@ -39,7 +68,6 @@ export async function PATCH(
       },
     })
 
-    // If approved, activate subscription
     if (status === 'APPROVED') {
       const startDate = new Date()
       const endDate = new Date()
@@ -53,7 +81,30 @@ export async function PATCH(
           endDate,
         },
       })
+    } else {
+      await prisma.subscription.update({
+        where: { id: payment.subscriptionId },
+        data: {
+          status: 'SUSPENDED',
+        },
+      })
     }
+
+    await setProfileVisibilityByApproval(payment.userId)
+    await prisma.activityLog.create({
+      data: {
+        userId: session.user.id,
+        action: `PAYMENT_${status}`,
+        entityType: 'Payment',
+        entityId: payment.id,
+        details: JSON.stringify({
+          subscriptionId: payment.subscriptionId,
+          targetUserId: payment.userId,
+          amount: payment.amount,
+          notes: notes || null,
+        }),
+      },
+    })
 
     return NextResponse.json(payment)
   } catch (error: any) {

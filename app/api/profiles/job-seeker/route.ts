@@ -94,6 +94,17 @@ export async function POST(request: Request) {
       select: { profilePicture: true, profilePictures: true },
     })
 
+    const hasApprovedActiveSubscription = await prisma.subscription.findFirst({
+      where: {
+        userId: session.user.id,
+        status: 'ACTIVE',
+        payments: {
+          some: { status: 'APPROVED' },
+        },
+      },
+      select: { id: true },
+    })
+
     const normalizedProfilePicture = isPersistentImageUrl(profilePicture)
       ? normalizeSinglePicture(profilePicture) ?? existingProfile?.profilePicture ?? null
       : existingProfile?.profilePicture || null
@@ -118,6 +129,7 @@ export async function POST(request: Request) {
         expectedSalary,
         profilePicture: normalizedProfilePicture,
         profilePictures: normalizedProfilePictures,
+        isVisible: !!hasApprovedActiveSubscription,
       },
       create: {
         userId: session.user.id,
@@ -133,6 +145,7 @@ export async function POST(request: Request) {
         expectedSalary,
         profilePicture: isPersistentImageUrl(profilePicture) ? normalizeSinglePicture(profilePicture) : null,
         profilePictures: normalizeProfilePictures(profilePictures),
+        isVisible: !!hasApprovedActiveSubscription,
       },
     })
 

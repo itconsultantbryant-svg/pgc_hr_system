@@ -9,6 +9,7 @@ import {
   CreditCard, 
   FileText, 
   LayoutDashboard,
+  Activity,
   Search,
   Bell,
   ChevronRight,
@@ -65,6 +66,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: CreditCard, label: 'Payments', href: '/dashboard/admin/payments' },
     { icon: Briefcase, label: 'All job posts', href: '/dashboard/admin/jobs' },
     { icon: ClipboardList, label: 'All applications', href: '/dashboard/admin/applications' },
+    { icon: Activity, label: 'Activity logs', href: '/dashboard/admin/activity-logs' },
     { icon: FileText, label: 'Content', href: '/dashboard/admin/content' },
     { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
   ]
