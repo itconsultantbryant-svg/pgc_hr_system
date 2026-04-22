@@ -24,6 +24,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@prisma/client": "^5.7.1",
     "@types/bcryptjs": "^2.4.6",
+    "@types/nodemailer": "^8.0.0",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
@@ -50,7 +51,6 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/nodemailer": "^8.0.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.0.4",
     "tsx": "^4.7.0"
