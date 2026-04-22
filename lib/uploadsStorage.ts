@@ -22,6 +22,20 @@ export function getUploadsRootDir(): string {
   return join(process.cwd(), 'public', 'uploads')
 }
 
+export function getDefaultUploadsRootDir(): string {
+  return join(process.cwd(), 'public', 'uploads')
+}
+
+/**
+ * Ordered roots to probe when serving media.
+ * Primary root comes first (UPLOAD_DIR or default), then default as legacy fallback.
+ */
+export function getUploadRootCandidates(): string[] {
+  const primary = getUploadsRootDir()
+  const fallback = getDefaultUploadsRootDir()
+  return primary === fallback ? [primary] : [primary, fallback]
+}
+
 export function getProfilesUploadDir(): string {
   return join(getUploadsRootDir(), 'profiles')
 }

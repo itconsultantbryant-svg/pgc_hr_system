@@ -1,13 +1,26 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, access } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { getPublicAssetBaseUrl } from '@/lib/publicAssetBaseUrl'
 import { getProfilesUploadDir } from '@/lib/uploadsStorage'
+import { randomUUID } from 'crypto'
 
 export const dynamic = 'force-dynamic'
+
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024 // 25MB
+
+const mimeToExt: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/svg+xml': 'svg',
+  'image/avif': 'avif',
+}
 
 export async function POST(request: Request) {
   try {
@@ -31,9 +44,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
+    // Allow high-resolution photos; cropped/optimized variants are recommended but not required.
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return NextResponse.json(
+        { error: 'File size must be less than 25MB' },
+        { status: 400 }
+      )
     }
 
     const bytes = await file.arrayBuffer()
@@ -44,12 +60,15 @@ export async function POST(request: Request) {
       await mkdir(uploadsDir, { recursive: true })
     }
 
-    const ext = (file.name.split('.').pop() || 'jpg').replace(/[^a-zA-Z0-9]/g, '') || 'jpg'
+    const extFromMime = mimeToExt[file.type.toLowerCase()]
+    const extFromName = (file.name.split('.').pop() || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+    const ext = extFromMime || extFromName || 'jpg'
     const timestamp = Date.now()
-    const filename = `${session.user.id}-${timestamp}.${ext}`
+    const filename = `${session.user.id}-${timestamp}-${randomUUID()}.${ext}`
     const filepath = join(uploadsDir, filename)
 
     await writeFile(filepath, buffer)
+    await access(filepath)
 
     const relativePath = `/uploads/profiles/${filename}`
     const base = getPublicAssetBaseUrl()

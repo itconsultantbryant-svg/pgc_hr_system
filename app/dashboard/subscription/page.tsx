@@ -201,6 +201,49 @@ export default function SubscriptionPage() {
             </div>
           )}
 
+          <div className="mt-8 bg-white rounded-lg shadow-md p-6 border border-yellow-100">
+            <div className="flex items-center gap-2 mb-4">
+              <CreditCard className="h-5 w-5 text-yellow-700" />
+              <h2 className="text-2xl font-semibold">Payment Methods</h2>
+            </div>
+            <p className="text-gray-600 mb-5">
+              After creating your subscription request, pay using one of the options below. Your
+              subscription is activated only after admin payment approval.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                <h3 className="text-lg font-semibold text-gray-900">MTN Mobile Money</h3>
+                <p className="text-sm text-gray-600 mt-1">Merchant Number</p>
+                <p className="text-xl font-bold text-gray-900 mt-1">0887417954</p>
+              </div>
+
+              <div className="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                <h3 className="text-lg font-semibold text-gray-900">Orange Money</h3>
+                <p className="text-sm text-gray-600 mt-1">Merchant Number</p>
+                <p className="text-xl font-bold text-gray-900 mt-1">8644338</p>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Payment Inquiry</h3>
+              <p className="text-sm text-gray-700 mb-3">
+                For inquiries related to payments or bank transfers, please contact us:
+              </p>
+              <div className="text-sm text-gray-800 space-y-1">
+                <p>+231(0)-774-917-393 / +231(0)-887-917-393</p>
+                <p>
+                  <a
+                    href="mailto:info@prinstinegroup.org"
+                    className="text-primary-700 hover:text-primary-800 underline"
+                  >
+                    info@prinstinegroup.org
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Subscription History */}
           {subscriptions.length > 0 && (
             <div className="bg-white rounded-lg shadow-md p-6">

@@ -74,6 +74,32 @@ export default function HealthPage() {
     }
   }
 
+  const runUploadsCheck = async () => {
+    setChecking(true)
+    setResult(null)
+
+    try {
+      const response = await fetch('/api/diag/uploads', { cache: 'no-store' })
+      const payload = await response.json().catch(() => null)
+      setResult({
+        ok: response.ok,
+        status: response.status,
+        message: response.ok
+          ? 'Uploads diagnostics passed.'
+          : 'Uploads diagnostics failed. Check payload for exact reason.',
+        payload,
+      })
+    } catch (error: any) {
+      setResult({
+        ok: false,
+        status: 0,
+        message: error?.message || 'Uploads diagnostics request failed.',
+      })
+    } finally {
+      setChecking(false)
+    }
+  }
+
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
@@ -100,6 +126,14 @@ export default function HealthPage() {
                 className="px-5 py-2.5 rounded-lg border border-yellow-300 text-yellow-800 font-semibold hover:bg-yellow-50 disabled:opacity-60"
               >
                 {checking ? 'Checking...' : 'Run Deep Check'}
+              </button>
+              <button
+                type="button"
+                onClick={runUploadsCheck}
+                disabled={checking}
+                className="px-5 py-2.5 rounded-lg border border-blue-300 text-blue-800 font-semibold hover:bg-blue-50 disabled:opacity-60"
+              >
+                {checking ? 'Checking...' : 'Run Uploads Check'}
               </button>
             </div>
 
