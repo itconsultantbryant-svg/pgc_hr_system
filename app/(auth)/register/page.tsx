@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { signIn } from 'next-auth/react'
 import Layout from '@/components/layout/Layout'
 import { PasswordField } from '@/components/auth/PasswordField'
 import { User, Briefcase, Building2, Mail } from 'lucide-react'
@@ -18,6 +19,7 @@ export default function RegisterPage() {
     userType: 'JOB_SEEKER' as 'JOB_SEEKER' | 'COMPANY' | 'ORGANIZATION',
   })
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,6 +59,16 @@ export default function RegisterPage() {
       toast.error(error.message || 'An error occurred. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleGoogleSignUp = async () => {
+    try {
+      setGoogleLoading(true)
+      await signIn('google', { callbackUrl: '/dashboard' })
+    } catch {
+      toast.error('Google signup failed. Please try again.')
+      setGoogleLoading(false)
     }
   }
 
@@ -184,6 +196,22 @@ export default function RegisterPage() {
                 ) : (
                   <span>Create Account</span>
                 )}
+              </button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white dark:bg-gray-800 px-2 text-gray-500">or continue with</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleGoogleSignUp}
+                disabled={googleLoading}
+                className="btn w-full justify-center border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
+              >
+                {googleLoading ? 'Connecting...' : 'Continue with Google'}
               </button>
 
               <p className="text-center text-sm text-gray-600">

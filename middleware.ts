@@ -1,33 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-
-const getBackendBaseUrl = () => {
-  const raw = process.env.BACKEND_URL?.trim()
-  if (!raw) return null
-  if (raw.includes('postgres://') || raw.includes('postgresql://')) return null
-
-  try {
-    const parsed = new URL(raw)
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null
-    return raw.replace(/\/$/, '')
-  } catch {
-    return null
-  }
-}
+import { getBackendProxyBaseUrl, shouldProxyApiRequests } from '@/lib/backendProxyBaseUrl'
 
 export function middleware(request: NextRequest) {
-  const backendBase = getBackendBaseUrl()
-  if (!backendBase) return NextResponse.next()
-
-  const { pathname, search } = request.nextUrl
-  const shouldProxyApi = pathname.startsWith('/api/')
-  const shouldProxyUploads = pathname.startsWith('/uploads/')
-
-  if (!shouldProxyApi && !shouldProxyUploads) {
+  if (!shouldProxyApiRequests()) {
     return NextResponse.next()
   }
 
-  const destination = `${backendBase}${pathname}${search || ''}`
-  return NextResponse.rewrite(destination)
+  const backendBase = getBackendProxyBaseUrl()
+  if (!backendBase) {
+    return NextResponse.next()
+  }
+
+  const pathname = request.nextUrl.pathname
+  if (!pathname.startsWith('/api/') && !pathname.startsWith('/uploads/')) {
+    return NextResponse.next()
+  }
+
+  const target = new URL(
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+    `${backendBase}/`
+  )
+
+  return NextResponse.rewrite(target)
 }
 
 export const config = {

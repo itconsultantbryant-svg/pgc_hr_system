@@ -5,16 +5,9 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { getPublicAssetBaseUrl } from '@/lib/publicAssetBaseUrl'
+import { getProfilesUploadDir } from '@/lib/uploadsStorage'
 
 export const dynamic = 'force-dynamic'
-
-function getProfilesUploadDir() {
-  const customRoot = process.env.UPLOAD_DIR?.trim()
-  if (customRoot) {
-    return join(customRoot, 'profiles')
-  }
-  return join(process.cwd(), 'public', 'uploads', 'profiles')
-}
 
 export async function POST(request: Request) {
   try {

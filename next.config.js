@@ -8,40 +8,38 @@ const nextConfig = {
     ]
   },
   async rewrites() {
-    // Rewrites are only for frontend-only deployments (e.g. Vercel -> Render backend).
-    // Do not enable on backend service deployments.
-    const frontendOnly = process.env.FRONTEND_ONLY === 'true'
-    if (!frontendOnly) return []
-
-    const rawBackendUrl = process.env.BACKEND_URL?.trim()
-    if (!rawBackendUrl) return []
-    if (rawBackendUrl.includes('postgresql://') || rawBackendUrl.includes('postgres://')) {
-      console.warn('[next.config] BACKEND_URL cannot be a database URL. Ignoring invalid value.')
-      return []
-    }
+    /** Same rules as middleware + lib/backendProxyBaseUrl — keep in sync for build-time rewrites on Vercel. */
+    const rawCandidates = [
+      process.env.BACKEND_URL?.trim(),
+      process.env.NEXT_PUBLIC_BACKEND_URL?.trim(),
+    ].filter(Boolean)
 
     let backendUrl = ''
-    try {
-      const parsed = new URL(rawBackendUrl)
-      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-        if (!parsed.hostname || parsed.hostname === 'postgresql' || parsed.hostname === 'postgres') {
-          console.warn('[next.config] BACKEND_URL hostname is invalid. Ignoring invalid value.')
-          return []
-        }
+    for (const rawBackendUrl of rawCandidates) {
+      if (rawBackendUrl.includes('postgresql://') || rawBackendUrl.includes('postgres://')) continue
+      try {
+        const parsed = new URL(rawBackendUrl)
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') continue
+        const host = parsed.hostname?.toLowerCase()
+        if (!host || host === 'postgresql' || host === 'postgres') continue
         backendUrl = rawBackendUrl.replace(/\/$/, '')
-      } else {
-        console.warn('[next.config] BACKEND_URL must use http/https. Ignoring invalid value.')
-        return []
+        break
+      } catch {
+        continue
       }
-    } catch {
-      console.warn('[next.config] BACKEND_URL is not a valid URL. Ignoring invalid value.')
+    }
+
+    if (!backendUrl) return []
+
+    const onVercel = process.env.VERCEL === '1'
+    const frontendOnlyFlag = process.env.FRONTEND_ONLY === 'true'
+    const noDb = !process.env.DATABASE_URL?.trim()
+    if (!onVercel && !frontendOnlyFlag && !noDb) {
       return []
     }
 
     return [
-      // Forward API requests to Render backend when deploying frontend-only on Vercel.
       { source: '/api/:path*', destination: `${backendUrl}/api/:path*` },
-      // Serve uploaded profile images from backend persistent storage.
       { source: '/uploads/:path*', destination: `${backendUrl}/uploads/:path*` },
     ]
   },

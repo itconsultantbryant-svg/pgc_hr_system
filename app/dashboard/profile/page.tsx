@@ -54,6 +54,87 @@ interface JobCategoryOption {
   name: string
 }
 
+type CropTarget = 'primary' | 'additional'
+
+interface CropSession {
+  target: CropTarget
+  file: File
+  previewUrl: string
+  aspect: number
+  title: string
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
+
+const loadImageFromUrl = (src: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = () => reject(new Error('Unable to load selected image'))
+    img.src = src
+  })
+
+const createCroppedImageFile = async (
+  file: File,
+  opts: { aspect: number; zoom: number; offsetX: number; offsetY: number }
+): Promise<File> => {
+  const objectUrl = URL.createObjectURL(file)
+  try {
+    const image = await loadImageFromUrl(objectUrl)
+    const imageWidth = image.naturalWidth || image.width
+    const imageHeight = image.naturalHeight || image.height
+    const targetAspect = opts.aspect > 0 ? opts.aspect : 1
+    const zoom = clamp(opts.zoom, 1, 3)
+
+    let cropWidth = imageWidth
+    let cropHeight = cropWidth / targetAspect
+    if (cropHeight > imageHeight) {
+      cropHeight = imageHeight
+      cropWidth = cropHeight * targetAspect
+    }
+
+    cropWidth = cropWidth / zoom
+    cropHeight = cropHeight / zoom
+
+    const maxShiftX = (imageWidth - cropWidth) / 2
+    const maxShiftY = (imageHeight - cropHeight) / 2
+    const shiftX = (clamp(opts.offsetX, -100, 100) / 100) * maxShiftX
+    const shiftY = (clamp(opts.offsetY, -100, 100) / 100) * maxShiftY
+
+    const sourceX = clamp((imageWidth - cropWidth) / 2 + shiftX, 0, imageWidth - cropWidth)
+    const sourceY = clamp((imageHeight - cropHeight) / 2 + shiftY, 0, imageHeight - cropHeight)
+
+    const canvas = document.createElement('canvas')
+    canvas.width = targetAspect === 1 ? 1000 : 1400
+    canvas.height = Math.round(canvas.width / targetAspect)
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('Image editor is unavailable in this browser')
+
+    ctx.drawImage(
+      image,
+      sourceX,
+      sourceY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    )
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/jpeg', 0.92)
+    )
+    if (!blob) throw new Error('Failed to process image')
+
+    const safeBase = (file.name || 'profile-image').replace(/\.[^.]+$/, '')
+    return new File([blob], `${safeBase}-cropped.jpg`, { type: 'image/jpeg' })
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
+}
+
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -61,6 +142,10 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [profileImageUploading, setProfileImageUploading] = useState(false)
   const [extraImageUploading, setExtraImageUploading] = useState(false)
+  const [cropSession, setCropSession] = useState<CropSession | null>(null)
+  const [cropZoom, setCropZoom] = useState(1)
+  const [cropOffsetX, setCropOffsetX] = useState(0)
+  const [cropOffsetY, setCropOffsetY] = useState(0)
   const [categories, setCategories] = useState<JobCategoryOption[]>([])
   const [profile, setProfile] = useState<ProfileData>({
     firstName: '',
@@ -208,14 +293,10 @@ export default function ProfilePage() {
     }
   }
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  const uploadPrimaryPhoto = async (file: File) => {
     const previewUrl = URL.createObjectURL(file)
     setProfile((prev) => ({ ...prev, profilePicture: previewUrl }))
     setProfileImageUploading(true)
-
     const formData = new FormData()
     formData.append('file', file)
 
@@ -254,19 +335,10 @@ export default function ProfilePage() {
     } finally {
       queueMicrotask(() => URL.revokeObjectURL(previewUrl))
       setProfileImageUploading(false)
-      e.target.value = ''
     }
   }
 
-  const handleAdditionalPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (profile.profilePictures.length >= 3) {
-      toast.error('You can upload up to 3 profile pictures only.')
-      return
-    }
-
+  const uploadAdditionalPhoto = async (file: File) => {
     const previewUrl = URL.createObjectURL(file)
     setExtraImageUploading(true)
     setProfile((prev) => ({
@@ -329,7 +401,87 @@ export default function ProfilePage() {
     } finally {
       queueMicrotask(() => URL.revokeObjectURL(previewUrl))
       setExtraImageUploading(false)
+    }
+  }
+
+  const openCropSession = (file: File, target: CropTarget) => {
+    const previewUrl = URL.createObjectURL(file)
+    setCropSession({
+      target,
+      file,
+      previewUrl,
+      aspect: target === 'primary' ? 1 : 4 / 3,
+      title: target === 'primary' ? 'Crop Profile Picture' : 'Crop Extra Profile Picture',
+    })
+    setCropZoom(1)
+    setCropOffsetX(0)
+    setCropOffsetY(0)
+  }
+
+  const closeCropSession = () => {
+    setCropSession((prev) => {
+      if (prev?.previewUrl) {
+        URL.revokeObjectURL(prev.previewUrl)
+      }
+      return null
+    })
+    setCropZoom(1)
+    setCropOffsetX(0)
+    setCropOffsetY(0)
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    openCropSession(file, 'primary')
+    e.target.value = ''
+  }
+
+  const handleAdditionalPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (profile.profilePictures.length >= 3) {
+      toast.error('You can upload up to 3 profile pictures only.')
       e.target.value = ''
+      return
+    }
+
+    openCropSession(file, 'additional')
+    e.target.value = ''
+  }
+
+  const handleCropAndUpload = async () => {
+    if (!cropSession) return
+    try {
+      const croppedFile = await createCroppedImageFile(cropSession.file, {
+        aspect: cropSession.aspect,
+        zoom: cropZoom,
+        offsetX: cropOffsetX,
+        offsetY: cropOffsetY,
+      })
+      if (cropSession.target === 'primary') {
+        await uploadPrimaryPhoto(croppedFile)
+      } else {
+        await uploadAdditionalPhoto(croppedFile)
+      }
+      closeCropSession()
+    } catch (error) {
+      toast.error('Failed to crop image. Please try another photo.')
+    }
+  }
+
+  const handleUploadOriginal = async () => {
+    if (!cropSession) return
+    try {
+      if (cropSession.target === 'primary') {
+        await uploadPrimaryPhoto(cropSession.file)
+      } else {
+        await uploadAdditionalPhoto(cropSession.file)
+      }
+      closeCropSession()
+    } catch {
+      toast.error('Failed to upload image. Please try again.')
     }
   }
 
@@ -846,6 +998,113 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+
+          {cropSession && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+              <div className="w-full max-w-2xl rounded-xl bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 p-5 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {cropSession.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Adjust zoom and position, then upload the cropped image.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeCropSession}
+                    className="rounded-md p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                    aria-label="Close cropper"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div
+                  className="relative w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900"
+                  style={{ aspectRatio: `${cropSession.aspect}` }}
+                >
+                  <img
+                    src={cropSession.previewUrl}
+                    alt="Crop preview"
+                    className="h-full w-full object-cover"
+                    style={{
+                      transform: `translate(${cropOffsetX}%, ${cropOffsetY}%) scale(${cropZoom})`,
+                      transformOrigin: 'center',
+                    }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <label className="text-sm text-gray-700 dark:text-gray-300">
+                    Zoom
+                    <input
+                      type="range"
+                      min={100}
+                      max={300}
+                      step={1}
+                      value={Math.round(cropZoom * 100)}
+                      onChange={(e) => setCropZoom(Number(e.target.value) / 100)}
+                      className="mt-1 w-full"
+                    />
+                  </label>
+                  <label className="text-sm text-gray-700 dark:text-gray-300">
+                    Left / Right
+                    <input
+                      type="range"
+                      min={-100}
+                      max={100}
+                      step={1}
+                      value={cropOffsetX}
+                      onChange={(e) => setCropOffsetX(Number(e.target.value))}
+                      className="mt-1 w-full"
+                    />
+                  </label>
+                  <label className="text-sm text-gray-700 dark:text-gray-300">
+                    Up / Down
+                    <input
+                      type="range"
+                      min={-100}
+                      max={100}
+                      step={1}
+                      value={cropOffsetY}
+                      onChange={(e) => setCropOffsetY(Number(e.target.value))}
+                      className="mt-1 w-full"
+                    />
+                  </label>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={closeCropSession}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleUploadOriginal}
+                    disabled={profileImageUploading || extraImageUploading}
+                    className="px-4 py-2 border border-yellow-400 text-yellow-700 dark:text-yellow-300 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 disabled:opacity-50 font-medium"
+                  >
+                    Use Original
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCropAndUpload}
+                    disabled={profileImageUploading || extraImageUploading}
+                    className="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 disabled:opacity-50 font-semibold"
+                  >
+                    {profileImageUploading || extraImageUploading
+                      ? 'Uploading...'
+                      : 'Crop & Upload'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
       </div>
     </RoleDashboardLayout>
   )
